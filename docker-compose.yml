@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  sigma-api:
+    build:
+      context: .
+      dockerfile: src/SIGMA.API/Dockerfile
+    container_name: sigma-api
+    ports:
+      - "8000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sigma-db,1433;Database=SigmaDb;User Id=sa;Password=Sigma@2024Strong!;TrustServerCertificate=True;
+      - JwtSettings__SecretKey=SIGMA-JWT-SECRET-KEY-2024-MUST-BE-AT-LEAST-256-BITS-LONG-FOR-HS256-ALGORITHM
+      - JwtSettings__Issuer=sigma.aero
+      - JwtSettings__Audience=sigma.frontend
+      - CorsSettings__AllowedOrigins__0=http://localhost:3000
+    depends_on:
+      sigma-db:
+        condition: service_healthy
+    networks:
+      - sigma-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  sigma-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sigma-db
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Sigma@2024Strong!
+      - MSSQL_PID=Developer
+    volumes:
+      - sigma-db-data:/var/opt/mssql
+    networks:
+      - sigma-network
+    restart: unless-stopped
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Sigma@2024Strong!" -Q "SELECT 1" -No
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  sigma-db-data:
+
+networks:
+  sigma-network:
+    driver: bridge

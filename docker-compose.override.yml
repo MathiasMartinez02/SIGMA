@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  sigma-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sigma-db,1433;Database=SigmaDb;User Id=sa;Password=Sigma@2024Strong!;TrustServerCertificate=True;
+    ports:
+      - "8000:8080"
+      - "8001:8081"
