@@ -26,6 +26,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<ChecklistItem> ChecklistItems => Set<ChecklistItem>();
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
     public DbSet<InventoryMovement> InventoryMovements => Set<InventoryMovement>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

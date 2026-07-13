@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using SIGMA.Application.Common.Interfaces;
+using SIGMA.Infrastructure.BackgroundServices;
 using SIGMA.Infrastructure.Identity;
 using SIGMA.Infrastructure.Persistence;
 using SIGMA.Infrastructure.Services;
@@ -35,6 +36,9 @@ public static class DependencyInjection
         services.AddScoped<IWorkOrderNumberGenerator, WorkOrderNumberGenerator>();
 
         services.AddHttpContextAccessor();
+
+        // Servicio en background que genera notificaciones de vencimientos cada 30 minutos
+        services.AddHostedService<NotificationGeneratorService>();
 
         var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
         var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);

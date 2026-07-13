@@ -22,6 +22,7 @@ public interface IApplicationDbContext
     DbSet<Domain.Entities.ChecklistItem> ChecklistItems { get; }
     DbSet<Domain.Entities.InventoryItem> InventoryItems { get; }
     DbSet<Domain.Entities.InventoryMovement> InventoryMovements { get; }
+    DbSet<Domain.Entities.Notification> Notifications { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
