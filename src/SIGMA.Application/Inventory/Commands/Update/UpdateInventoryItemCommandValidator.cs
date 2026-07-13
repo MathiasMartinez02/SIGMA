@@ -1,33 +1,24 @@
 using FluentValidation;
 
-namespace SIGMA.Application.Inventory.Commands.Create;
+namespace SIGMA.Application.Inventory.Commands.Update;
 
-public class CreateInventoryItemCommandValidator : AbstractValidator<CreateInventoryItemCommand>
+// Valida el comando de actualizacion de item de inventario, incluyendo el nuevo campo MaximumStock
+public class UpdateInventoryItemCommandValidator : AbstractValidator<UpdateInventoryItemCommand>
 {
-    public CreateInventoryItemCommandValidator()
+    public UpdateInventoryItemCommandValidator()
     {
-        RuleFor(x => x.PartNumber)
-            .NotEmpty().WithMessage("El número de parte es requerido.")
-            .MaximumLength(50);
-
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("La descripción es requerida.")
             .MaximumLength(500);
+
+        RuleFor(x => x.Location)
+            .NotEmpty().WithMessage("La ubicación es requerida.");
 
         RuleFor(x => x.MinimumStock)
             .GreaterThanOrEqualTo(0).WithMessage("El stock mínimo no puede ser negativo.");
 
         RuleFor(x => x.UnitCost)
             .GreaterThanOrEqualTo(0).WithMessage("El costo unitario no puede ser negativo.");
-
-        RuleFor(x => x.Unit)
-            .NotEmpty().WithMessage("La unidad de medida es requerida.");
-
-        RuleFor(x => x.Manufacturer)
-            .NotEmpty().WithMessage("El fabricante es requerido.");
-
-        RuleFor(x => x.Location)
-            .NotEmpty().WithMessage("La ubicación es requerida.");
 
         // Si se informa un stock maximo, debe ser mayor al stock minimo configurado
         RuleFor(x => x.MaximumStock)

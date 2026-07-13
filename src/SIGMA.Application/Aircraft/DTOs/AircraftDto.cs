@@ -57,6 +57,18 @@ public class FlightRecordDto
     public string? Notes { get; init; }
 }
 
+// DTO de trazabilidad repuesto-aeronave: un movimiento de salida de inventario vinculado a una OT de la aeronave
+public class AircraftInventoryUsageDto
+{
+    public string PartNumber { get; init; } = string.Empty;
+    public string ItemDescription { get; init; } = string.Empty;
+    public decimal Quantity { get; init; }
+    public DateTime MovementDate { get; init; }
+    // Se agrega el id de la OT (ademas del numero visible) para poder armar el link de navegacion al detalle desde el frontend
+    public Guid WorkOrderId { get; init; }
+    public string WorkOrderNumber { get; init; } = string.Empty;
+}
+
 public class AircraftComponentDto
 {
     public Guid Id { get; init; }

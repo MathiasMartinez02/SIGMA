@@ -10,5 +10,6 @@ public record UpdateInventoryItemCommand(
     decimal MinimumStock,
     decimal UnitCost,
     string? CertificateNumber,
-    DateTime? ExpiryDate
+    DateTime? ExpiryDate,
+    decimal? MaximumStock = null
 ) : IRequest<Result>;

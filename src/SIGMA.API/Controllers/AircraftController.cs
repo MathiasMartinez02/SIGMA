@@ -9,6 +9,7 @@ using SIGMA.Application.Aircraft.Commands.Update;
 using SIGMA.Application.Aircraft.Commands.UpdateStatus;
 using SIGMA.Application.Aircraft.Queries.GetAll;
 using SIGMA.Application.Aircraft.Queries.GetById;
+using SIGMA.Application.Aircraft.Queries.GetInventoryUsage;
 using SIGMA.Application.Aircraft.Queries.GetMaintenanceHistory;
 using SIGMA.Application.Common.Models;
 using SIGMA.Domain.Enums;
@@ -109,6 +110,15 @@ public class AircraftController : ControllerBase
     public async Task<IActionResult> GetMaintenanceHistory(Guid id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetMaintenanceHistoryQuery(id), cancellationToken);
+        if (result.Failed) return NotFound(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse<object>.Ok(result.Data!));
+    }
+
+    // Devuelve la trazabilidad de repuestos usados en OTs de la aeronave (numero de parte, descripcion, cantidad, fecha y OT)
+    [HttpGet("{id:guid}/inventory-usage")]
+    public async Task<IActionResult> GetInventoryUsage(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetAircraftInventoryUsageQuery(id), cancellationToken);
         if (result.Failed) return NotFound(ApiResponse<object>.Fail(result.Errors));
         return Ok(ApiResponse<object>.Ok(result.Data!));
     }

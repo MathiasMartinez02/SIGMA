@@ -35,6 +35,7 @@ public class GetInventoryReportQueryHandler : IRequestHandler<GetInventoryReport
             Location = i.Location,
             CurrentStock = i.CurrentStock,
             MinimumStock = i.MinimumStock,
+            MaximumStock = i.MaximumStock,
             Unit = i.Unit,
             UnitCost = i.UnitCost,
             Status = i.Status,

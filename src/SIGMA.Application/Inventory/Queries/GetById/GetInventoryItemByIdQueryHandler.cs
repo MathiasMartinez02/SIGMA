@@ -33,6 +33,7 @@ public class GetInventoryItemByIdQueryHandler : IRequestHandler<GetInventoryItem
             Location = item.Location,
             CurrentStock = item.CurrentStock,
             MinimumStock = item.MinimumStock,
+            MaximumStock = item.MaximumStock,
             Unit = item.Unit,
             UnitCost = item.UnitCost,
             Status = item.Status,

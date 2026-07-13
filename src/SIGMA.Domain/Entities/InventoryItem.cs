@@ -14,6 +14,8 @@ public class InventoryItem : AuditableEntity
     public string Location { get; private set; } = string.Empty;
     public decimal CurrentStock { get; private set; }
     public decimal MinimumStock { get; private set; }
+    // Stock maximo recomendado para el item; nulo cuando no aplica limite superior
+    public decimal? MaximumStock { get; private set; }
     public string Unit { get; private set; } = string.Empty;
     public decimal UnitCost { get; private set; }
     public InventoryStatus Status { get; private set; } = InventoryStatus.Disponible;
@@ -26,11 +28,14 @@ public class InventoryItem : AuditableEntity
 
     private InventoryItem() { }
 
+    // MODIFICADO: agrega el parametro opcional maximumStock para configurar el limite superior de stock
+    // ANTERIOR: Create(string partNumber, string description, InventoryCategory category, string manufacturer, string location, decimal minimumStock, string unit, decimal unitCost, bool certificationRequired = false, DateTime? expiryDate = null, string? altPartNumbers = null) sin maximumStock
     public static InventoryItem Create(
         string partNumber, string description, InventoryCategory category,
         string manufacturer, string location, decimal minimumStock,
         string unit, decimal unitCost, bool certificationRequired = false,
-        DateTime? expiryDate = null, string? altPartNumbers = null) =>
+        DateTime? expiryDate = null, string? altPartNumbers = null,
+        decimal? maximumStock = null) =>
         new()
         {
             PartNumber = partNumber.Trim().ToUpperInvariant(),
@@ -39,6 +44,7 @@ public class InventoryItem : AuditableEntity
             Manufacturer = manufacturer.Trim(),
             Location = location.Trim(),
             MinimumStock = minimumStock,
+            MaximumStock = maximumStock,
             Unit = unit,
             UnitCost = unitCost,
             CertificationRequired = certificationRequired,
@@ -66,10 +72,14 @@ public class InventoryItem : AuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
+    // MODIFICADO: agrega el estado SobreStock cuando hay MaximumStock configurado y se supera, con prioridad menor a Vencido pero mayor al resto
+    // ANTERIOR: solo evaluaba Vencido, SinStock, BajoStock o Disponible, sin considerar un limite maximo de stock
     public void RecalculateStatus()
     {
         if (ExpiryDate.HasValue && ExpiryDate.Value.Date < DateTime.UtcNow.Date)
             Status = InventoryStatus.Vencido;
+        else if (MaximumStock.HasValue && CurrentStock > MaximumStock.Value)
+            Status = InventoryStatus.SobreStock;
         else if (CurrentStock <= 0)
             Status = InventoryStatus.SinStock;
         else if (CurrentStock <= MinimumStock)
@@ -78,12 +88,16 @@ public class InventoryItem : AuditableEntity
             Status = InventoryStatus.Disponible;
     }
 
+    // MODIFICADO: agrega el parametro opcional maximumStock para poder editar el limite superior de stock
+    // ANTERIOR: Update(string description, string location, decimal minimumStock, decimal unitCost, string? certificateNumber, DateTime? expiryDate) sin maximumStock
     public void Update(string description, string location, decimal minimumStock,
-        decimal unitCost, string? certificateNumber, DateTime? expiryDate)
+        decimal unitCost, string? certificateNumber, DateTime? expiryDate,
+        decimal? maximumStock = null)
     {
         Description = description.Trim();
         Location = location.Trim();
         MinimumStock = minimumStock;
+        MaximumStock = maximumStock;
         UnitCost = unitCost;
         CertificateNumber = certificateNumber;
         ExpiryDate = expiryDate;

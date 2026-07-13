@@ -56,6 +56,7 @@ public class GetInventoryQueryHandler : IRequestHandler<GetInventoryQuery, Pagin
             Location = i.Location,
             CurrentStock = i.CurrentStock,
             MinimumStock = i.MinimumStock,
+            MaximumStock = i.MaximumStock,
             Unit = i.Unit,
             UnitCost = i.UnitCost,
             Status = i.Status,

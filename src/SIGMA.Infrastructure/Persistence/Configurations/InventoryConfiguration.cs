@@ -21,6 +21,8 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(i => i.CertificateNumber).HasMaxLength(100);
         builder.Property(i => i.CurrentStock).HasPrecision(12, 3);
         builder.Property(i => i.MinimumStock).HasPrecision(12, 3);
+        // Columna nueva: stock maximo opcional, mismo formato numerico que MinimumStock
+        builder.Property(i => i.MaximumStock).HasPrecision(12, 3);
         builder.Property(i => i.UnitCost).HasPrecision(12, 2);
 
         builder.HasIndex(i => i.Status);
@@ -52,5 +54,12 @@ public class InventoryMovementConfiguration : IEntityTypeConfiguration<Inventory
             .WithMany()
             .HasForeignKey(m => m.PerformedById)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Navegacion opcional hacia WorkOrder para permitir joins reales de trazabilidad repuesto-aeronave, sin cascada de borrado
+        builder.HasOne(m => m.WorkOrder)
+            .WithMany()
+            .HasForeignKey(m => m.WorkOrderId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
     }
 }

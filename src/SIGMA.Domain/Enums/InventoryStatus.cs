@@ -6,5 +6,7 @@ public enum InventoryStatus
     Reservado,
     BajoStock,
     SinStock,
-    Vencido
+    Vencido,
+    // Estado cuando el stock actual supera el stock maximo configurado para el item
+    SobreStock
 }

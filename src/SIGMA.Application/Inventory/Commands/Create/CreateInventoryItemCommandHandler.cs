@@ -37,7 +37,8 @@ public class CreateInventoryItemCommandHandler : IRequestHandler<CreateInventory
             request.UnitCost,
             request.CertificationRequired,
             request.ExpiryDate,
-            request.AltPartNumbers);
+            request.AltPartNumbers,
+            request.MaximumStock);
 
         _context.InventoryItems.Add(item);
         await _context.SaveChangesAsync(cancellationToken);
@@ -52,6 +53,7 @@ public class CreateInventoryItemCommandHandler : IRequestHandler<CreateInventory
             Location = item.Location,
             CurrentStock = item.CurrentStock,
             MinimumStock = item.MinimumStock,
+            MaximumStock = item.MaximumStock,
             Unit = item.Unit,
             UnitCost = item.UnitCost,
             Status = item.Status,

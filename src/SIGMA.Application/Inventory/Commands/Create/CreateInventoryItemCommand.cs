@@ -16,5 +16,6 @@ public record CreateInventoryItemCommand(
     decimal UnitCost,
     bool CertificationRequired = false,
     DateTime? ExpiryDate = null,
-    string? AltPartNumbers = null
+    string? AltPartNumbers = null,
+    decimal? MaximumStock = null
 ) : IRequest<Result<InventoryItemDto>>;

@@ -12,6 +12,7 @@ public class InventoryItemDto
     public string Location { get; init; } = string.Empty;
     public decimal CurrentStock { get; init; }
     public decimal MinimumStock { get; init; }
+    public decimal? MaximumStock { get; init; }
     public string Unit { get; init; } = string.Empty;
     public decimal UnitCost { get; init; }
     public InventoryStatus Status { get; init; }
@@ -34,4 +35,7 @@ public class InventoryMovementDto
     public Guid PerformedById { get; init; }
     public string PerformedByName { get; init; } = string.Empty;
     public DateTime PerformedAt { get; init; }
+    // Se agregan los datos de aprobacion (antes faltaban en el DTO, el frontend nunca podia saber si un movimiento ya estaba aprobado)
+    public Guid? ApprovedById { get; init; }
+    public string? ApprovedByName { get; init; }
 }
