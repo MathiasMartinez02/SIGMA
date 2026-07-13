@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SIGMA.Application.Common.Models;
 using SIGMA.Application.Inspections.Commands.Approve;
+using SIGMA.Application.Inspections.Commands.Create;
 using SIGMA.Application.Inspections.Commands.Reject;
 using SIGMA.Application.Inspections.Commands.UpdateChecklistItem;
 using SIGMA.Application.Inspections.Queries.GetAll;
@@ -47,6 +48,18 @@ public class InspectionsController : ControllerBase
         return Ok(ApiResponse<object>.Ok(result.Data!));
     }
 
+    // Programa una nueva inspección sobre una orden de trabajo existente
+    [HttpPost]
+    [Authorize(Policy = "CanApproveInspections")]
+    public async Task<IActionResult> Create([FromBody] CreateInspectionRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new CreateInspectionCommand(request.WorkOrderId, request.ScheduledDate, request.InspectorId),
+            cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse<object>.Ok(result.Data!));
+    }
+
     [HttpPost("{id:guid}/approve")]
     [Authorize(Policy = "CanApproveInspections")]
     public async Task<IActionResult> Approve(Guid id, [FromBody] ApproveRequest request, CancellationToken cancellationToken)
@@ -77,6 +90,7 @@ public class InspectionsController : ControllerBase
     }
 }
 
+public record CreateInspectionRequest(Guid WorkOrderId, DateTime ScheduledDate, Guid? InspectorId);
 public record ApproveRequest(string? Observations);
 public record RejectRequest(string RejectionReason);
 public record UpdateChecklistItemRequest(ChecklistItemStatus Status, string? Observations);
