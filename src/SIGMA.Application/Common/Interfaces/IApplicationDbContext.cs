@@ -23,6 +23,7 @@ public interface IApplicationDbContext
     DbSet<Domain.Entities.InventoryItem> InventoryItems { get; }
     DbSet<Domain.Entities.InventoryMovement> InventoryMovements { get; }
     DbSet<Domain.Entities.Notification> Notifications { get; }
+    DbSet<Domain.Entities.Appointment> Appointments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
