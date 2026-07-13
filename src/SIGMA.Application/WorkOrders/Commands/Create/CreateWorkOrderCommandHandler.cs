@@ -48,7 +48,7 @@ public class CreateWorkOrderCommandHandler : IRequestHandler<CreateWorkOrderComm
             number, request.Type, request.Priority,
             aircraft.Id, aircraft.ClientId,
             request.Description, request.EstimatedHours,
-            request.EstimatedEndDate, aircraft.TotalFlightHours, userId);
+            request.IntakeDate, request.EstimatedEndDate, aircraft.TotalFlightHours, userId);
 
         var timeline = WorkOrderTimeline.Create(
             workOrder.Id, "Creación", $"Orden de trabajo {number} creada",

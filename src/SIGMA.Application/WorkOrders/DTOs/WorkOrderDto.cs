@@ -18,6 +18,7 @@ public class WorkOrderDto
     public decimal EstimatedHours { get; init; }
     public decimal ActualHours { get; init; }
     public DateTime? StartDate { get; init; }
+    public DateTime IntakeDate { get; init; }
     public DateTime EstimatedEndDate { get; init; }
     public DateTime? CompletedDate { get; init; }
     public decimal AircraftHoursAtStart { get; init; }

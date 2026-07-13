@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SIGMA.Application.Clients.Commands.Create;
 using SIGMA.Application.Clients.Commands.Update;
+using SIGMA.Application.Clients.Commands.UpdateStatus;
 using SIGMA.Application.Clients.Queries.GetAll;
 using SIGMA.Application.Clients.Queries.GetById;
 using SIGMA.Application.Common.Models;
@@ -56,4 +57,16 @@ public class ClientsController : ControllerBase
         if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
         return Ok(ApiResponse.Ok());
     }
+
+    // Activa o desactiva un cliente segun el body recibido
+    [HttpPatch("{id:guid}/status")]
+    [Authorize(Policy = "CanManageClients")]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateClientStatusRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new UpdateClientStatusCommand(id, request.IsActive), cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse.Ok());
+    }
 }
+
+public record UpdateClientStatusRequest(bool IsActive);

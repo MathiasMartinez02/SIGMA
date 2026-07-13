@@ -69,7 +69,7 @@ public class WorkOrdersController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateWorkOrderRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
-            new UpdateWorkOrderCommand(id, request.Description, request.EstimatedHours, request.EstimatedEndDate, request.Priority),
+            new UpdateWorkOrderCommand(id, request.Description, request.EstimatedHours, request.IntakeDate, request.EstimatedEndDate, request.Priority),
             cancellationToken);
 
         if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
@@ -124,7 +124,9 @@ public class WorkOrdersController : ControllerBase
     }
 }
 
-public record UpdateWorkOrderRequest(string Description, decimal EstimatedHours, DateTime EstimatedEndDate, WorkOrderPriority Priority);
+// MODIFICADO: agrega IntakeDate para permitir editar la fecha de ingreso de la OT desde el endpoint
+// ANTERIOR: UpdateWorkOrderRequest(string Description, decimal EstimatedHours, DateTime EstimatedEndDate, WorkOrderPriority Priority) sin fecha de ingreso
+public record UpdateWorkOrderRequest(string Description, decimal EstimatedHours, DateTime IntakeDate, DateTime EstimatedEndDate, WorkOrderPriority Priority);
 public record UpdateStatusRequest(WorkOrderStatus Status);
 public record AddTaskRequest(string Title, string Description, decimal EstimatedHours, bool RequiresInspection);
 public record UpdateTaskStatusRequest(WorkOrderTaskStatus Status, string? Observations);

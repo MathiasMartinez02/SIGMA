@@ -19,7 +19,7 @@ public class UpdateWorkOrderCommandHandler : IRequestHandler<UpdateWorkOrderComm
         if (workOrder is null)
             return Result.Failure("Orden de trabajo no encontrada.");
 
-        workOrder.Update(request.Description, request.EstimatedHours, request.EstimatedEndDate, request.Priority);
+        workOrder.Update(request.Description, request.EstimatedHours, request.IntakeDate, request.EstimatedEndDate, request.Priority);
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

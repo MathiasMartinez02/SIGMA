@@ -18,6 +18,8 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
         builder.Property(w => w.EstimatedHours).HasPrecision(8, 2);
         builder.Property(w => w.ActualHours).HasPrecision(8, 2);
         builder.Property(w => w.AircraftHoursAtStart).HasPrecision(10, 1);
+        // Mapea la fecha de ingreso de la aeronave al taller (dato de negocio, distinto de CreatedAt de auditoria)
+        builder.Property(w => w.IntakeDate).IsRequired();
 
         builder.HasIndex(w => w.Status);
         builder.HasIndex(w => w.Priority);

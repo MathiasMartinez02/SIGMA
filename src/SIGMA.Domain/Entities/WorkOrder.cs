@@ -19,6 +19,7 @@ public class WorkOrder : AuditableEntity
     public decimal EstimatedHours { get; private set; }
     public decimal ActualHours { get; private set; }
     public DateTime? StartDate { get; private set; }
+    public DateTime IntakeDate { get; private set; }
     public DateTime EstimatedEndDate { get; private set; }
     public DateTime? CompletedDate { get; private set; }
     public decimal AircraftHoursAtStart { get; private set; }
@@ -41,10 +42,12 @@ public class WorkOrder : AuditableEntity
 
     private WorkOrder() { }
 
+    // MODIFICADO: agrega el parametro intakeDate (fecha de ingreso de la aeronave al taller, dato de negocio distinto de CreatedAt)
+    // ANTERIOR: Create(string number, WorkOrderType type, WorkOrderPriority priority, Guid aircraftId, Guid clientId, string description, decimal estimatedHours, DateTime estimatedEndDate, decimal aircraftHoursAtStart, Guid createdById) sin fecha de ingreso
     public static WorkOrder Create(
         string number, WorkOrderType type, WorkOrderPriority priority,
         Guid aircraftId, Guid clientId, string description,
-        decimal estimatedHours, DateTime estimatedEndDate,
+        decimal estimatedHours, DateTime intakeDate, DateTime estimatedEndDate,
         decimal aircraftHoursAtStart, Guid createdById)
     {
         if (string.IsNullOrWhiteSpace(description))
@@ -61,6 +64,7 @@ public class WorkOrder : AuditableEntity
             ClientId = clientId,
             Description = description.Trim(),
             EstimatedHours = estimatedHours,
+            IntakeDate = intakeDate,
             EstimatedEndDate = estimatedEndDate,
             AircraftHoursAtStart = aircraftHoursAtStart,
             CreatedById = createdById
@@ -107,10 +111,13 @@ public class WorkOrder : AuditableEntity
                 $"No se puede finalizar la OT. Hay {pendingInspectionTasks.Count} tarea(s) con inspección pendiente.");
     }
 
-    public void Update(string description, decimal estimatedHours, DateTime estimatedEndDate, WorkOrderPriority priority)
+    // MODIFICADO: agrega el parametro intakeDate para permitir editar la fecha de ingreso de la OT
+    // ANTERIOR: Update(string description, decimal estimatedHours, DateTime estimatedEndDate, WorkOrderPriority priority) sin fecha de ingreso
+    public void Update(string description, decimal estimatedHours, DateTime intakeDate, DateTime estimatedEndDate, WorkOrderPriority priority)
     {
         Description = description.Trim();
         EstimatedHours = estimatedHours;
+        IntakeDate = intakeDate;
         EstimatedEndDate = estimatedEndDate;
         Priority = priority;
         UpdatedAt = DateTime.UtcNow;

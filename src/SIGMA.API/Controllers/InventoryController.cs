@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SIGMA.Application.Common.Models;
 using SIGMA.Application.Inventory.Commands.AddMovement;
 using SIGMA.Application.Inventory.Commands.Create;
+using SIGMA.Application.Inventory.Commands.Delete;
 using SIGMA.Application.Inventory.Commands.Update;
 using SIGMA.Application.Inventory.Queries.GetAll;
 using SIGMA.Application.Inventory.Queries.GetById;
@@ -78,6 +79,16 @@ public class InventoryController : ControllerBase
         var result = await _mediator.Send(new AddInventoryMovementCommand(id, request.Type, request.Quantity, request.WorkOrderId, request.Reason), cancellationToken);
         if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
         return Ok(ApiResponse<object>.Ok(result.Data!));
+    }
+
+    // Da de baja (soft delete) un item de inventario, rechazando la baja si todavia tiene stock
+    [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "CanManageInventory")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new DeleteInventoryItemCommand(id), cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse.Ok());
     }
 }
 

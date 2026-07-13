@@ -13,7 +13,7 @@ public class WorkOrderStatusTransitionTests
         var wo = WorkOrder.Create(
             "OT-2024-0001", WorkOrderType.Inspeccion100h, WorkOrderPriority.Media,
             Guid.NewGuid(), Guid.NewGuid(), "Test work order",
-            10m, DateTime.UtcNow.AddDays(30), 100m, Guid.NewGuid());
+            10m, DateTime.UtcNow, DateTime.UtcNow.AddDays(30), 100m, Guid.NewGuid());
 
         if (status == WorkOrderStatus.EnProceso)
             wo.TransitionTo(WorkOrderStatus.EnProceso, Guid.NewGuid(), "Test User", "Gerente");

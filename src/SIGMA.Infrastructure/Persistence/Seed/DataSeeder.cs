@@ -188,23 +188,23 @@ public static class DataSeeder
         {
             WorkOrder.Create("OT-2026-0001", WorkOrderType.Inspeccion100h, WorkOrderPriority.Alta,
                 lvRgt.Id, aeroclub.Id, "Inspección de 100 horas reglamentaria. Revisión completa de motor, celula y sistemas.",
-                25m, new DateTime(2026, 4, 15), lvRgt.TotalFlightHours, gerente.Id),
+                25m, new DateTime(2026, 4, 1), new DateTime(2026, 4, 15), lvRgt.TotalFlightHours, gerente.Id),
 
             WorkOrder.Create("OT-2026-0002", WorkOrderType.Reparacion, WorkOrderPriority.Critica,
                 lvMnp.Id, tas.Id, "Reparación de tren de aterrizaje principal. Daño por aterrizaje forzoso.",
-                40m, new DateTime(2026, 4, 30), lvMnp.TotalFlightHours, gerente.Id),
+                40m, new DateTime(2026, 4, 18), new DateTime(2026, 4, 30), lvMnp.TotalFlightHours, gerente.Id),
 
             WorkOrder.Create("OT-2026-0003", WorkOrderType.InspeccionAnual, WorkOrderPriority.Media,
                 lvBcd.Id, ejecutivos.Id, "Inspección anual obligatoria según RAAC Parte 43.",
-                30m, new DateTime(2026, 5, 10), lvBcd.TotalFlightHours, gerente.Id),
+                30m, new DateTime(2026, 4, 28), new DateTime(2026, 5, 10), lvBcd.TotalFlightHours, gerente.Id),
 
             WorkOrder.Create("OT-2026-0004", WorkOrderType.Inspeccion50h, WorkOrderPriority.Baja,
                 lvXyz.Id, helipat.Id, "Inspección de 50 horas del rotor principal y cola.",
-                15m, new DateTime(2026, 5, 20), lvXyz.TotalFlightHours, gerente.Id),
+                15m, new DateTime(2026, 5, 12), new DateTime(2026, 5, 20), lvXyz.TotalFlightHours, gerente.Id),
 
             WorkOrder.Create("OT-2026-0005", WorkOrderType.AdCumplimiento, WorkOrderPriority.Alta,
                 lvKrt.Id, aeroclub.Id, "Cumplimiento de Directiva de Aeronavegabilidad 2026-08-01. Inspección de tanques de combustible.",
-                20m, new DateTime(2026, 6, 1), lvKrt.TotalFlightHours, gerente.Id),
+                20m, new DateTime(2026, 5, 25), new DateTime(2026, 6, 1), lvKrt.TotalFlightHours, gerente.Id),
         };
 
         workOrders[0].TransitionTo(WorkOrderStatus.EnProceso, gerente.Id, gerente.FullName, "Gerente");
