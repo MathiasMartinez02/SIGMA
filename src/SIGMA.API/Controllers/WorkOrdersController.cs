@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SIGMA.Application.Common.Models;
+using SIGMA.Application.WorkOrders.Commands.AddDocument;
 using SIGMA.Application.WorkOrders.Commands.AddMechanic;
 using SIGMA.Application.WorkOrders.Commands.AddTask;
 using SIGMA.Application.WorkOrders.Commands.Create;
@@ -105,6 +106,16 @@ public class WorkOrdersController : ControllerBase
         return Ok(ApiResponse.Ok());
     }
 
+    // Endpoint que faltaba (Fase 4): WorkOrderDocument existia en el Domain pero no tenia Command/Controller
+    [HttpPost("{id:guid}/documents")]
+    [Authorize(Policy = "CanManageWorkOrders")]
+    public async Task<IActionResult> AddDocument(Guid id, [FromBody] AddWorkOrderDocumentRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new AddWorkOrderDocumentCommand(id, request.Name, request.Type, request.FileUrl), cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse<object>.Ok(result.Data!));
+    }
+
     [HttpPost("{id:guid}/mechanics")]
     [Authorize(Policy = "CanManageWorkOrders")]
     public async Task<IActionResult> AddMechanic(Guid id, [FromBody] AddMechanicRequest request, CancellationToken cancellationToken)
@@ -131,3 +142,4 @@ public record UpdateStatusRequest(WorkOrderStatus Status);
 public record AddTaskRequest(string Title, string Description, decimal EstimatedHours, bool RequiresInspection);
 public record UpdateTaskStatusRequest(WorkOrderTaskStatus Status, string? Observations);
 public record AddMechanicRequest(Guid UserId);
+public record AddWorkOrderDocumentRequest(string Name, string Type, string FileUrl);

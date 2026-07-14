@@ -68,6 +68,7 @@ public class NotificationGeneratorService : BackgroundService
         created += await NotifyAircraftInspectionsAsync(context, activeUserIds, now, threshold, cancellationToken);
         created += await NotifyAircraftCertificatesAsync(context, activeUserIds, now, threshold, cancellationToken);
         created += await NotifyAircraftDocumentsAsync(context, activeUserIds, now, threshold, cancellationToken);
+        created += await NotifyTechnicalDocumentsAsync(context, activeUserIds, now, threshold, cancellationToken);
         created += await NotifyInventoryAsync(context, activeUserIds, cancellationToken);
 
         if (created > 0)
@@ -139,6 +140,29 @@ public class NotificationGeneratorService : BackgroundService
 
             var title = "Documento por vencer";
             var message = $"El documento '{document.Name}' de la aeronave {document.Aircraft.Registration} vence el {document.ExpiryDate:dd/MM/yyyy}.";
+            count += CreateForActiveUsers(context, activeUserIds, NotificationType.DocumentoPorVencer, title, message, document.Id);
+        }
+
+        return count;
+    }
+
+    // Genera notificaciones de tipo DocumentoPorVencer para el repositorio general de documentacion tecnica (Fase 4), mismo criterio que AircraftDocument
+    private async Task<int> NotifyTechnicalDocumentsAsync(
+        IApplicationDbContext context, List<Guid> activeUserIds, DateTime now, DateTime threshold, CancellationToken cancellationToken)
+    {
+        var documentsExpiring = await context.TechnicalDocuments
+            .Where(d => !d.IsDeleted && d.ExpiryDate.HasValue
+                && d.ExpiryDate.Value >= now && d.ExpiryDate.Value <= threshold)
+            .ToListAsync(cancellationToken);
+
+        var count = 0;
+        foreach (var document in documentsExpiring)
+        {
+            var alreadyExists = await ExistsUnreadNotificationAsync(context, NotificationType.DocumentoPorVencer, document.Id, cancellationToken);
+            if (alreadyExists) continue;
+
+            var title = "Documento por vencer";
+            var message = $"El documento tecnico '{document.Title}' ({document.Type}) vence el {document.ExpiryDate:dd/MM/yyyy}.";
             count += CreateForActiveUsers(context, activeUserIds, NotificationType.DocumentoPorVencer, title, message, document.Id);
         }
 

@@ -24,6 +24,8 @@ public interface IApplicationDbContext
     DbSet<Domain.Entities.InventoryMovement> InventoryMovements { get; }
     DbSet<Domain.Entities.Notification> Notifications { get; }
     DbSet<Domain.Entities.Appointment> Appointments { get; }
+    // Fase 4: repositorio general de documentacion tecnica (manuales, boletines, directivas AD, certificados), no atado a una aeronave puntual
+    DbSet<Domain.Entities.TechnicalDocument> TechnicalDocuments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

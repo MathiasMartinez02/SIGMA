@@ -28,6 +28,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<InventoryMovement> InventoryMovements => Set<InventoryMovement>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    // Fase 4: repositorio general de documentacion tecnica (manuales, boletines, directivas AD, certificados)
+    public DbSet<TechnicalDocument> TechnicalDocuments => Set<TechnicalDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

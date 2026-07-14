@@ -35,6 +35,16 @@ public class ReportsController : ControllerBase
         return Ok(ApiResponse<object>.Ok(result));
     }
 
+    // Horas de taller (ActualHours de OT) agrupadas por mes, para el grafico "Horas de Taller por Mes" de ReportsPage
+    [HttpGet("work-orders/monthly-hours")]
+    public async Task<IActionResult> GetMonthlyWorkshopHours(
+        [FromQuery] int months = 7,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new GetMonthlyWorkshopHoursQuery(months), cancellationToken);
+        return Ok(ApiResponse<object>.Ok(result));
+    }
+
     [HttpGet("inspections")]
     public async Task<IActionResult> GetInspectionsReport(
         [FromQuery] DateTime? dateFrom = null,

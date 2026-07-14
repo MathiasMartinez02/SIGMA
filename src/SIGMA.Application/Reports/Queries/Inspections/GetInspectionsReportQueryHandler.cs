@@ -63,12 +63,23 @@ public class GetInspectionsReportQueryHandler : IRequestHandler<GetInspectionsRe
             .GroupBy(i => i.Type)
             .ToDictionary(g => g.Key, g => g.Count());
 
+        // Cumplimiento normativo: de las inspecciones ya completadas (con CompletedAt cargado), que porcentaje se realizo
+        // en o antes de la fecha programada (ScheduledDate). Sin esto, no hay forma de medir si se cumple el cronograma de mantenimiento.
+        var completed = inspections.Where(i => i.CompletedAt.HasValue).ToList();
+        var onTimeCount = completed.Count(i => i.CompletedAt!.Value.Date <= i.ScheduledDate.Date);
+        var compliancePercentage = completed.Count > 0
+            ? Math.Round((decimal)onTimeCount / completed.Count * 100, 2)
+            : (decimal?)null;
+
         return new InspectionsReportDto
         {
             Inspections = dtos,
             TotalCount = dtos.Count,
             ByStatus = byStatus,
-            ByType = byType
+            ByType = byType,
+            CompletedCount = completed.Count,
+            OnTimeCount = onTimeCount,
+            CompliancePercentage = compliancePercentage
         };
     }
 }

@@ -39,6 +39,26 @@ public class InspectionsReportDto
     public int TotalCount { get; init; }
     public Dictionary<string, int> ByStatus { get; init; } = [];
     public Dictionary<string, int> ByType { get; init; } = [];
+    // Cantidad de inspecciones completadas (Completada/Aprobada/Rechazada, es decir con CompletedAt cargado) dentro del periodo
+    public int CompletedCount { get; init; }
+    // De las completadas, cuantas se realizaron en o antes de la fecha programada (ScheduledDate)
+    public int OnTimeCount { get; init; }
+    // Porcentaje de cumplimiento normativo (OnTimeCount / CompletedCount). Null si no hay inspecciones completadas en el periodo
+    public decimal? CompliancePercentage { get; init; }
+}
+
+// Item de horas de taller (ActualHours de OT) agrupadas por mes, usado para el grafico "Horas de Taller por Mes"
+public class MonthlyWorkshopHoursItemDto
+{
+    public int Year { get; init; }
+    public int Month { get; init; }
+    public string Label { get; init; } = string.Empty;
+    public decimal TotalHours { get; init; }
+}
+
+public class MonthlyWorkshopHoursReportDto
+{
+    public IList<MonthlyWorkshopHoursItemDto> Items { get; init; } = [];
 }
 
 public class AircraftStatusReportDto

@@ -39,6 +39,11 @@ public static class AuthorizationExtensions
             options.AddPolicy("CanViewDashboard", policy =>
                 policy.RequireAssertion(ctx =>
                     ctx.User.HasClaim("permissions", p => p.Contains("canViewDashboard"))));
+
+            // Fase 4: alta de documentacion tecnica (manuales/boletines/directivas AD) reusa el permiso ya existente canSignDocuments
+            options.AddPolicy("CanSignDocuments", policy =>
+                policy.RequireAssertion(ctx =>
+                    ctx.User.HasClaim("permissions", p => p.Contains("canSignDocuments"))));
         });
     }
 
