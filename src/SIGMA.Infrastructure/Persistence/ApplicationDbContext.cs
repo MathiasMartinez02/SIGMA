@@ -30,6 +30,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Appointment> Appointments => Set<Appointment>();
     // Fase 4: repositorio general de documentacion tecnica (manuales, boletines, directivas AD, certificados)
     public DbSet<TechnicalDocument> TechnicalDocuments => Set<TechnicalDocument>();
+    // Fase 6: presupuestos (MVP de Administrativo)
+    public DbSet<Budget> Budgets => Set<Budget>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -18,6 +18,9 @@ public class User : AuditableEntity
     public string? AvatarUrl { get; private set; }
     public bool IsActive { get; private set; } = true;
     public DateTime? LastLoginAt { get; private set; }
+    // Fase 7: token de un solo uso para el flujo de "olvide mi contrasena" (MVP sin envio de email real, ver ForgotPasswordCommandHandler)
+    public string? PasswordResetToken { get; private set; }
+    public DateTime? PasswordResetTokenExpiry { get; private set; }
 
     public ICollection<RefreshToken> RefreshTokens { get; private set; } = [];
     public ICollection<WorkOrder> CreatedWorkOrders { get; private set; } = [];
@@ -63,6 +66,21 @@ public class User : AuditableEntity
     public void SetActive(bool isActive) => IsActive = isActive;
     public void RecordLogin() => LastLoginAt = DateTime.UtcNow;
     public void UpdatePasswordHash(string hash) => PasswordHash = hash;
+
+    // Genera y guarda un token de reseteo de contrasena de un solo uso, valido por el tiempo indicado
+    public void SetPasswordResetToken(string token, DateTime expiry)
+    {
+        PasswordResetToken = token;
+        PasswordResetTokenExpiry = expiry;
+    }
+
+    // Aplica la nueva contrasena hasheada y consume (limpia) el token de reseteo, para que no pueda reutilizarse
+    public void ResetPassword(string newPasswordHash)
+    {
+        PasswordHash = newPasswordHash;
+        PasswordResetToken = null;
+        PasswordResetTokenExpiry = null;
+    }
 
     public IList<string> GetPermissions() => Role switch
     {

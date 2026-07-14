@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SIGMA.Application.Common.Models;
 using SIGMA.Application.WorkOrders.Commands.AddDocument;
+using SIGMA.Application.WorkOrders.Commands.AddMaterial;
 using SIGMA.Application.WorkOrders.Commands.AddMechanic;
 using SIGMA.Application.WorkOrders.Commands.AddTask;
 using SIGMA.Application.WorkOrders.Commands.Create;
 using SIGMA.Application.WorkOrders.Commands.RemoveMechanic;
 using SIGMA.Application.WorkOrders.Commands.Update;
+using SIGMA.Application.WorkOrders.Commands.UpdateMaterialStatus;
 using SIGMA.Application.WorkOrders.Commands.UpdateStatus;
 using SIGMA.Application.WorkOrders.Commands.UpdateTaskStatus;
 using SIGMA.Application.WorkOrders.Queries.GetAll;
@@ -106,6 +108,28 @@ public class WorkOrdersController : ControllerBase
         return Ok(ApiResponse.Ok());
     }
 
+    // Endpoints que faltaban (Fase 8): WorkOrderMaterial existia en el Domain pero no tenia capa de aplicacion/controller
+    [HttpPost("{id:guid}/materials")]
+    [Authorize(Policy = "CanManageWorkOrders")]
+    public async Task<IActionResult> AddMaterial(Guid id, [FromBody] AddMaterialRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new AddWorkOrderMaterialCommand(id, request.PartNumber, request.Description, request.Quantity, request.Unit),
+            cancellationToken);
+
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse<object>.Ok(result.Data!));
+    }
+
+    [HttpPatch("{id:guid}/materials/{materialId:guid}/status")]
+    [Authorize(Policy = "CanManageWorkOrders")]
+    public async Task<IActionResult> UpdateMaterialStatus(Guid id, Guid materialId, [FromBody] UpdateMaterialStatusRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new UpdateMaterialStatusCommand(id, materialId, request.Status), cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse.Ok());
+    }
+
     // Endpoint que faltaba (Fase 4): WorkOrderDocument existia en el Domain pero no tenia Command/Controller
     [HttpPost("{id:guid}/documents")]
     [Authorize(Policy = "CanManageWorkOrders")]
@@ -143,3 +167,5 @@ public record AddTaskRequest(string Title, string Description, decimal Estimated
 public record UpdateTaskStatusRequest(WorkOrderTaskStatus Status, string? Observations);
 public record AddMechanicRequest(Guid UserId);
 public record AddWorkOrderDocumentRequest(string Name, string Type, string FileUrl);
+public record AddMaterialRequest(string PartNumber, string Description, decimal Quantity, string Unit);
+public record UpdateMaterialStatusRequest(WorkOrderMaterialStatus Status);

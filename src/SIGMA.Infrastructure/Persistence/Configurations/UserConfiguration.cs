@@ -18,6 +18,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.LicenseNumber).HasMaxLength(50);
         builder.Property(u => u.Phone).HasMaxLength(30);
         builder.Property(u => u.AvatarUrl).HasMaxLength(500);
+        builder.Property(u => u.PasswordResetToken).HasMaxLength(128);
 
         builder.HasQueryFilter(u => !u.IsDeleted);
 
