@@ -64,6 +64,7 @@ using (var scope = app.Services.CreateScope())
         logger.LogInformation("Initializing database...");
         var created = await context.Database.EnsureCreatedAsync();
         logger.LogInformation("Database EnsureCreated result: {Created} (true = tables created now, false = already existed)", created);
+        await SIGMA.Infrastructure.Persistence.DatabasePatcher.ApplyAsync(context, logger);
         await DataSeeder.SeedAsync(context, logger);
         logger.LogInformation("Database ready.");
     }
