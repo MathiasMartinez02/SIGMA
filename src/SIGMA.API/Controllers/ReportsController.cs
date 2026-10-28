@@ -1,12 +1,12 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Common.Models;
-using SIGMA.Application.Reports.Queries.AircraftStatus;
-using SIGMA.Application.Reports.Queries.Inspections;
-using SIGMA.Application.Reports.Queries.Inventory;
-using SIGMA.Application.Reports.Queries.WorkOrders;
-using SIGMA.Domain.Enums;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Reports.Queries.AircraftStatus;
+using SIGMA.API.Reports.Queries.Inspections;
+using SIGMA.API.Reports.Queries.Inventory;
+using SIGMA.API.Reports.Queries.WorkOrders;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 

@@ -1,8 +1,8 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Common.Models;
-using SIGMA.Application.Dashboard.Queries.GetDashboard;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Dashboard.Queries.GetDashboard;
 
 namespace SIGMA.API.Controllers;
 

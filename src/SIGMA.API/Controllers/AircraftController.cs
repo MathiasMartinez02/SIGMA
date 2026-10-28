@@ -1,18 +1,18 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Aircraft.Commands.AddComponent;
-using SIGMA.Application.Aircraft.Commands.AddDocument;
-using SIGMA.Application.Aircraft.Commands.AddFlightRecord;
-using SIGMA.Application.Aircraft.Commands.Create;
-using SIGMA.Application.Aircraft.Commands.Update;
-using SIGMA.Application.Aircraft.Commands.UpdateStatus;
-using SIGMA.Application.Aircraft.Queries.GetAll;
-using SIGMA.Application.Aircraft.Queries.GetById;
-using SIGMA.Application.Aircraft.Queries.GetInventoryUsage;
-using SIGMA.Application.Aircraft.Queries.GetMaintenanceHistory;
-using SIGMA.Application.Common.Models;
-using SIGMA.Domain.Enums;
+using SIGMA.API.Aircraft.Commands.AddComponent;
+using SIGMA.API.Aircraft.Commands.AddDocument;
+using SIGMA.API.Aircraft.Commands.AddFlightRecord;
+using SIGMA.API.Aircraft.Commands.Create;
+using SIGMA.API.Aircraft.Commands.Update;
+using SIGMA.API.Aircraft.Commands.UpdateStatus;
+using SIGMA.API.Aircraft.Queries.GetAll;
+using SIGMA.API.Aircraft.Queries.GetById;
+using SIGMA.API.Aircraft.Queries.GetInventoryUsage;
+using SIGMA.API.Aircraft.Queries.GetMaintenanceHistory;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 

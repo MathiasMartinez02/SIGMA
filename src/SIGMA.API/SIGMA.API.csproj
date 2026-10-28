@@ -7,14 +7,35 @@
     <UserSecretsId>sigma-api-secrets</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SIGMA.Application\SIGMA.Application.csproj" />
-    <ProjectReference Include="..\SIGMA.Infrastructure\SIGMA.Infrastructure.csproj" />
-  </ItemGroup>
-  <ItemGroup>
+    <!-- Web / Swagger / Logging -->
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <!-- Auth / JWT -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.5.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
+    <!-- MediatR / Validation / Mapping -->
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
+    <PackageReference Include="AutoMapper" Version="13.0.1">
+      <NoWarn>NU1903</NoWarn>
+    </PackageReference>
+    <!-- EF Core -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <!-- Security / Utilities -->
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <!-- DI / Config abstractions -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
   </ItemGroup>
 </Project>

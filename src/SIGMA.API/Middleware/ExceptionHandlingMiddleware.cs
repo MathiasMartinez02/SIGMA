@@ -1,7 +1,7 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using FluentValidation;
-using SIGMA.Domain.Exceptions;
+using SIGMA.API.Exceptions;
 
 namespace SIGMA.API.Middleware;
 

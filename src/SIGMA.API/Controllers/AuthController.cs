@@ -1,14 +1,14 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Auth.Commands.ForgotPassword;
-using SIGMA.Application.Auth.Commands.Login;
-using SIGMA.Application.Auth.Commands.Logout;
-using SIGMA.Application.Auth.Commands.Refresh;
-using SIGMA.Application.Auth.Commands.ResetPassword;
-using SIGMA.Application.Common.Interfaces;
-using SIGMA.Application.Common.Models;
-using SIGMA.Application.Users.Commands.ChangePassword;
+using SIGMA.API.Auth.Commands.ForgotPassword;
+using SIGMA.API.Auth.Commands.Login;
+using SIGMA.API.Auth.Commands.Logout;
+using SIGMA.API.Auth.Commands.Refresh;
+using SIGMA.API.Auth.Commands.ResetPassword;
+using SIGMA.API.Common.Interfaces;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Users.Commands.ChangePassword;
 
 namespace SIGMA.API.Controllers;
 

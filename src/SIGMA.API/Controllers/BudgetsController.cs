@@ -1,12 +1,12 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Budgets.Commands.Create;
-using SIGMA.Application.Budgets.Commands.UpdateStatus;
-using SIGMA.Application.Budgets.Queries.GetAll;
-using SIGMA.Application.Budgets.Queries.GetById;
-using SIGMA.Application.Common.Models;
-using SIGMA.Domain.Enums;
+using SIGMA.API.Budgets.Commands.Create;
+using SIGMA.API.Budgets.Commands.UpdateStatus;
+using SIGMA.API.Budgets.Queries.GetAll;
+using SIGMA.API.Budgets.Queries.GetById;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 

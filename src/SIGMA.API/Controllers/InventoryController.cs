@@ -1,16 +1,16 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Common.Models;
-using SIGMA.Application.Inventory.Commands.AddMovement;
-using SIGMA.Application.Inventory.Commands.ApproveMovement;
-using SIGMA.Application.Inventory.Commands.Create;
-using SIGMA.Application.Inventory.Commands.Delete;
-using SIGMA.Application.Inventory.Commands.Update;
-using SIGMA.Application.Inventory.Queries.GetAll;
-using SIGMA.Application.Inventory.Queries.GetById;
-using SIGMA.Application.Inventory.Queries.GetMovements;
-using SIGMA.Domain.Enums;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Inventory.Commands.AddMovement;
+using SIGMA.API.Inventory.Commands.ApproveMovement;
+using SIGMA.API.Inventory.Commands.Create;
+using SIGMA.API.Inventory.Commands.Delete;
+using SIGMA.API.Inventory.Commands.Update;
+using SIGMA.API.Inventory.Queries.GetAll;
+using SIGMA.API.Inventory.Queries.GetById;
+using SIGMA.API.Inventory.Queries.GetMovements;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 

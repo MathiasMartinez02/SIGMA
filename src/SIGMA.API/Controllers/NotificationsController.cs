@@ -1,12 +1,12 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Common.Interfaces;
-using SIGMA.Application.Common.Models;
-using SIGMA.Application.Notifications.Commands.MarkAllAsRead;
-using SIGMA.Application.Notifications.Commands.MarkAsRead;
-using SIGMA.Application.Notifications.Queries.GetAll;
-using SIGMA.Application.Notifications.Queries.GetUnreadCount;
+using SIGMA.API.Common.Interfaces;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Notifications.Commands.MarkAllAsRead;
+using SIGMA.API.Notifications.Commands.MarkAsRead;
+using SIGMA.API.Notifications.Queries.GetAll;
+using SIGMA.API.Notifications.Queries.GetUnreadCount;
 
 namespace SIGMA.API.Controllers;
 

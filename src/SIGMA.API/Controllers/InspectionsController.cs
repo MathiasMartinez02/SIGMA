@@ -1,14 +1,14 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Common.Models;
-using SIGMA.Application.Inspections.Commands.Approve;
-using SIGMA.Application.Inspections.Commands.Create;
-using SIGMA.Application.Inspections.Commands.Reject;
-using SIGMA.Application.Inspections.Commands.UpdateChecklistItem;
-using SIGMA.Application.Inspections.Queries.GetAll;
-using SIGMA.Application.Inspections.Queries.GetById;
-using SIGMA.Domain.Enums;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Inspections.Commands.Approve;
+using SIGMA.API.Inspections.Commands.Create;
+using SIGMA.API.Inspections.Commands.Reject;
+using SIGMA.API.Inspections.Commands.UpdateChecklistItem;
+using SIGMA.API.Inspections.Queries.GetAll;
+using SIGMA.API.Inspections.Queries.GetById;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 

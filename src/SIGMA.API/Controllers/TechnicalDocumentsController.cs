@@ -1,12 +1,12 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Common.Models;
-using SIGMA.Application.TechnicalDocuments.Commands.Create;
-using SIGMA.Application.TechnicalDocuments.Queries.GetAll;
-using SIGMA.Application.TechnicalDocuments.Queries.GetById;
-using SIGMA.Application.TechnicalDocuments.Queries.GetExpiring;
-using SIGMA.Domain.Enums;
+using SIGMA.API.Common.Models;
+using SIGMA.API.TechnicalDocuments.Commands.Create;
+using SIGMA.API.TechnicalDocuments.Queries.GetAll;
+using SIGMA.API.TechnicalDocuments.Queries.GetById;
+using SIGMA.API.TechnicalDocuments.Queries.GetExpiring;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 

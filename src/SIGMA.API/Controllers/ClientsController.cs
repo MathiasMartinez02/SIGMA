@@ -1,12 +1,12 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Clients.Commands.Create;
-using SIGMA.Application.Clients.Commands.Update;
-using SIGMA.Application.Clients.Commands.UpdateStatus;
-using SIGMA.Application.Clients.Queries.GetAll;
-using SIGMA.Application.Clients.Queries.GetById;
-using SIGMA.Application.Common.Models;
+using SIGMA.API.Clients.Commands.Create;
+using SIGMA.API.Clients.Commands.Update;
+using SIGMA.API.Clients.Commands.UpdateStatus;
+using SIGMA.API.Clients.Queries.GetAll;
+using SIGMA.API.Clients.Queries.GetById;
+using SIGMA.API.Common.Models;
 
 namespace SIGMA.API.Controllers;
 

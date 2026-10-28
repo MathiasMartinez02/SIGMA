@@ -1,13 +1,13 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Appointments.Commands.ConvertToWorkOrder;
-using SIGMA.Application.Appointments.Commands.Create;
-using SIGMA.Application.Appointments.Commands.UpdateStatus;
-using SIGMA.Application.Appointments.Queries.GetAll;
-using SIGMA.Application.Appointments.Queries.GetById;
-using SIGMA.Application.Common.Models;
-using SIGMA.Domain.Enums;
+using SIGMA.API.Appointments.Commands.ConvertToWorkOrder;
+using SIGMA.API.Appointments.Commands.Create;
+using SIGMA.API.Appointments.Commands.UpdateStatus;
+using SIGMA.API.Appointments.Queries.GetAll;
+using SIGMA.API.Appointments.Queries.GetById;
+using SIGMA.API.Common.Models;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 

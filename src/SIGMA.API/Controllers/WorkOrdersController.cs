@@ -1,20 +1,20 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIGMA.Application.Common.Models;
-using SIGMA.Application.WorkOrders.Commands.AddDocument;
-using SIGMA.Application.WorkOrders.Commands.AddMaterial;
-using SIGMA.Application.WorkOrders.Commands.AddMechanic;
-using SIGMA.Application.WorkOrders.Commands.AddTask;
-using SIGMA.Application.WorkOrders.Commands.Create;
-using SIGMA.Application.WorkOrders.Commands.RemoveMechanic;
-using SIGMA.Application.WorkOrders.Commands.Update;
-using SIGMA.Application.WorkOrders.Commands.UpdateMaterialStatus;
-using SIGMA.Application.WorkOrders.Commands.UpdateStatus;
-using SIGMA.Application.WorkOrders.Commands.UpdateTaskStatus;
-using SIGMA.Application.WorkOrders.Queries.GetAll;
-using SIGMA.Application.WorkOrders.Queries.GetById;
-using SIGMA.Domain.Enums;
+using SIGMA.API.Common.Models;
+using SIGMA.API.WorkOrders.Commands.AddDocument;
+using SIGMA.API.WorkOrders.Commands.AddMaterial;
+using SIGMA.API.WorkOrders.Commands.AddMechanic;
+using SIGMA.API.WorkOrders.Commands.AddTask;
+using SIGMA.API.WorkOrders.Commands.Create;
+using SIGMA.API.WorkOrders.Commands.RemoveMechanic;
+using SIGMA.API.WorkOrders.Commands.Update;
+using SIGMA.API.WorkOrders.Commands.UpdateMaterialStatus;
+using SIGMA.API.WorkOrders.Commands.UpdateStatus;
+using SIGMA.API.WorkOrders.Commands.UpdateTaskStatus;
+using SIGMA.API.WorkOrders.Queries.GetAll;
+using SIGMA.API.WorkOrders.Queries.GetById;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 
