@@ -5,6 +5,7 @@ using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
 using SIGMA.API.WorkOrders.DTOs;
 using SIGMA.API.Entities;
+using SIGMA.API.WorkOrders.Services;
 
 namespace SIGMA.API.WorkOrders.Commands.AddTask;
 
@@ -21,12 +22,11 @@ public class AddWorkOrderTaskCommandHandler : IRequestHandler<AddWorkOrderTaskCo
 
     public async Task<Result<WorkOrderTaskDto>> Handle(AddWorkOrderTaskCommand request, CancellationToken cancellationToken)
     {
-        var workOrder = await _context.WorkOrders
-            .Include(w => w.Tasks)
-            .FirstOrDefaultAsync(w => w.Id == request.WorkOrderId, cancellationToken);
+        var (workOrder, error) = await EditableWorkOrder.FindAsync(
+            _context, request.WorkOrderId, cancellationToken, q => q.Include(w => w.Tasks));
 
         if (workOrder is null)
-            return Result<WorkOrderTaskDto>.Failure("Orden de trabajo no encontrada.");
+            return Result<WorkOrderTaskDto>.Failure(error!);
 
         var orderIndex = workOrder.Tasks.Count + 1;
         var task = WorkOrderTask.Create(

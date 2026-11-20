@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
 using SIGMA.API.Entities;
+using SIGMA.API.WorkOrders.Services;
+using SIGMA.API.Enums;
 
 namespace SIGMA.API.WorkOrders.Commands.AddMechanic;
 
@@ -14,13 +16,14 @@ public class AddMechanicCommandHandler : IRequestHandler<AddMechanicCommand, Res
 
     public async Task<Result> Handle(AddMechanicCommand request, CancellationToken cancellationToken)
     {
-        var workOrder = await _context.WorkOrders
-            .FirstOrDefaultAsync(w => w.Id == request.WorkOrderId, cancellationToken);
+        var (workOrder, error) = await EditableWorkOrder.FindAsync(_context, request.WorkOrderId, cancellationToken);
+        if (workOrder is null) return Result.Failure(error!);
 
-        if (workOrder is null) return Result.Failure("Orden de trabajo no encontrada.");
-
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId && !u.IsDeleted, cancellationToken);
         if (user is null) return Result.Failure("Usuario no encontrado.");
+        if (!user.IsActive) return Result.Failure("El usuario está desactivado.");
+        if (user.Role is not (UserRole.Mecanico or UserRole.JefeTaller))
+            return Result.Failure("Solo se pueden asignar mecánicos o jefes de taller a una OT.");
 
         var alreadyAssigned = await _context.AssignedMechanics
             .AnyAsync(am => am.WorkOrderId == request.WorkOrderId && am.UserId == request.UserId, cancellationToken);

@@ -39,6 +39,23 @@ public class Appointment : AuditableEntity
         };
     }
 
+    // Reprograma el turno o asocia la aeronave ya registrada (solo antes de convertirlo)
+    public void Update(Guid? aircraftId, string? aircraftRegistrationHint, WorkOrderType requestedType,
+        DateTime scheduledDate, string? notes)
+    {
+        if (Status is not (AppointmentStatus.Solicitado or AppointmentStatus.Confirmado))
+            throw new DomainException("Solo se puede editar un turno Solicitado o Confirmado.");
+        if (aircraftId is null && string.IsNullOrWhiteSpace(aircraftRegistrationHint))
+            throw new DomainException("Debe indicar la aeronave registrada o una matrícula de referencia.");
+
+        AircraftId = aircraftId;
+        AircraftRegistrationHint = aircraftId is null ? aircraftRegistrationHint?.Trim() : null;
+        RequestedType = requestedType;
+        ScheduledDate = scheduledDate;
+        Notes = notes?.Trim();
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     // Confirma un turno que estaba en estado Solicitado
     public void Confirm()
     {

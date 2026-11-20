@@ -10,7 +10,7 @@ public class AircraftDocument : AuditableEntity
     public string Name { get; private set; } = string.Empty;
     public string FileUrl { get; private set; } = string.Empty;
     public DateTime? ExpiryDate { get; private set; }
-    public bool IsExpired => ExpiryDate.HasValue && ExpiryDate.Value < DateTime.UtcNow;
+    public bool IsExpired => ExpiryDate.HasValue && ExpiryDate.Value < DateTime.Today;
     public DateTime UploadedAt { get; private set; } = DateTime.UtcNow;
 
     private AircraftDocument() { }

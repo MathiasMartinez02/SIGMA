@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
 using SIGMA.API.Enums;
+using SIGMA.API.WorkOrders.Services;
 
 namespace SIGMA.API.WorkOrders.Commands.UpdateMaterialStatus;
 
@@ -18,6 +19,10 @@ public class UpdateMaterialStatusCommandHandler : IRequestHandler<UpdateMaterial
 
     public async Task<Result> Handle(UpdateMaterialStatusCommand request, CancellationToken cancellationToken)
     {
+        var (workOrder, error) = await EditableWorkOrder.FindAsync(_context, request.WorkOrderId, cancellationToken);
+        if (workOrder is null)
+            return Result.Failure(error!);
+
         var material = await _context.WorkOrderMaterials
             .FirstOrDefaultAsync(m => m.Id == request.MaterialId && m.WorkOrderId == request.WorkOrderId, cancellationToken);
 

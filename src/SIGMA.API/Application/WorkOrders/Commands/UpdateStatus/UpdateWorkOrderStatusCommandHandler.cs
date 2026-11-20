@@ -47,7 +47,7 @@ public class UpdateWorkOrderStatusCommandHandler : IRequestHandler<UpdateWorkOrd
             }
 
             if (request.NewStatus == WorkOrderStatus.Finalizada)
-                aircraft.RegisterCompletedInspection(workOrder.Type, DateTime.UtcNow);
+                aircraft.RegisterCompletedInspection(workOrder.Type, DateTime.Today);
 
             await AircraftStatusSync.ApplyAsync(_context, workOrder, aircraft, cancellationToken);
         }

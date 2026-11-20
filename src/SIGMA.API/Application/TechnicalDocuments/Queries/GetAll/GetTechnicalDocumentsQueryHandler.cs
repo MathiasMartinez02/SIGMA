@@ -33,7 +33,7 @@ public class GetTechnicalDocumentsQueryHandler : IRequestHandler<GetTechnicalDoc
 
         if (request.ExpiringOnly == true)
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.Today;
             var threshold = now.Add(ExpiryWindow);
             query = query.Where(d => d.ExpiryDate.HasValue && d.ExpiryDate.Value >= now && d.ExpiryDate.Value <= threshold);
         }

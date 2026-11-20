@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
+using SIGMA.API.Exceptions;
 
 namespace SIGMA.API.WorkOrders.Commands.Update;
 
@@ -19,7 +20,15 @@ public class UpdateWorkOrderCommandHandler : IRequestHandler<UpdateWorkOrderComm
         if (workOrder is null)
             return Result.Failure("Orden de trabajo no encontrada.");
 
-        workOrder.Update(request.Description, request.EstimatedHours, request.IntakeDate, request.EstimatedEndDate, request.Priority);
+        try
+        {
+            workOrder.Update(request.Description, request.EstimatedHours, request.IntakeDate, request.EstimatedEndDate, request.Priority);
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

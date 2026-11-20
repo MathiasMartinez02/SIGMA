@@ -48,9 +48,12 @@ public class ConvertAppointmentToWorkOrderCommandHandler
         if (aircraft is null)
             return Result<WorkOrderDto>.Failure("La aeronave no fue encontrada.");
 
+        if (aircraft.Status == AircraftStatus.FueraDeServicio)
+            return Result<WorkOrderDto>.Failure("La aeronave está fuera de servicio y no puede recibir una orden de trabajo.");
+
         var number = await _numberGenerator.GenerateAsync(cancellationToken);
         var userId = _currentUser.UserId!.Value;
-        var intakeDate = DateTime.UtcNow;
+        var intakeDate = DateTime.Today;
         var description = "Generada desde turno confirmado."
             + (string.IsNullOrWhiteSpace(appointment.Notes) ? "" : $" Notas: {appointment.Notes}");
 
@@ -59,7 +62,7 @@ public class ConvertAppointmentToWorkOrderCommandHandler
         {
             workOrder = WorkOrder.Create(
                 number, appointment.RequestedType, WorkOrderPriority.Media,
-                aircraft.Id, aircraft.ClientId, description,
+                aircraft.Id, appointment.ClientId, description,
                 estimatedHours: 1, intakeDate, intakeDate.AddDays(7),
                 aircraft.TotalFlightHours, userId);
 

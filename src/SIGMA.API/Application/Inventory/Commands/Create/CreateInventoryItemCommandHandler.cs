@@ -38,7 +38,8 @@ public class CreateInventoryItemCommandHandler : IRequestHandler<CreateInventory
             request.CertificationRequired,
             request.ExpiryDate,
             request.AltPartNumbers,
-            request.MaximumStock);
+            request.MaximumStock,
+            request.CertificateNumber);
 
         _context.InventoryItems.Add(item);
         await _context.SaveChangesAsync(cancellationToken);

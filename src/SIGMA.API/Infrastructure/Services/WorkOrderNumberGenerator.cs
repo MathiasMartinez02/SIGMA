@@ -6,9 +6,11 @@ namespace SIGMA.API.Services;
 
 public class WorkOrderNumberGenerator : IWorkOrderNumberGenerator
 {
+    private static readonly SemaphoreSlim Lock = new(1, 1);
+    private static readonly Dictionary<int, int> LastIssuedByYear = [];
+
     private readonly ApplicationDbContext _context;
     private readonly IDateTimeProvider _dateTime;
-    private static readonly SemaphoreSlim _lock = new(1, 1);
 
     public WorkOrderNumberGenerator(ApplicationDbContext context, IDateTimeProvider dateTime)
     {
@@ -16,34 +18,34 @@ public class WorkOrderNumberGenerator : IWorkOrderNumberGenerator
         _dateTime = dateTime;
     }
 
+    // Proximo numero OT-AAAA-NNNN; reserva el emitido para que dos altas simultaneas no repitan
     public async Task<string> GenerateAsync(CancellationToken cancellationToken = default)
     {
-        await _lock.WaitAsync(cancellationToken);
+        await Lock.WaitAsync(cancellationToken);
         try
         {
             var year = _dateTime.CurrentYear;
             var prefix = $"OT-{year}-";
 
-            var lastNumber = await _context.WorkOrders
+            var existing = await _context.WorkOrders
                 .IgnoreQueryFilters()
                 .Where(w => w.Number.StartsWith(prefix))
-                .OrderByDescending(w => w.Number)
                 .Select(w => w.Number)
-                .FirstOrDefaultAsync(cancellationToken);
+                .ToListAsync(cancellationToken);
 
-            int sequence = 1;
-            if (lastNumber is not null)
-            {
-                var parts = lastNumber.Split('-');
-                if (parts.Length == 3 && int.TryParse(parts[2], out var last))
-                    sequence = last + 1;
-            }
+            var maxInDatabase = existing
+                .Select(n => int.TryParse(n[prefix.Length..], out var value) ? value : 0)
+                .DefaultIfEmpty(0)
+                .Max();
 
-            return $"{prefix}{sequence:D4}";
+            var next = Math.Max(maxInDatabase, LastIssuedByYear.GetValueOrDefault(year)) + 1;
+            LastIssuedByYear[year] = next;
+
+            return $"{prefix}{next:D4}";
         }
         finally
         {
-            _lock.Release();
+            Lock.Release();
         }
     }
 }

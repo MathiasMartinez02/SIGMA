@@ -16,7 +16,7 @@ public class GetExpiringTechnicalDocumentsQueryHandler : IRequestHandler<GetExpi
 
     public async Task<IReadOnlyList<TechnicalDocumentDto>> Handle(GetExpiringTechnicalDocumentsQuery request, CancellationToken cancellationToken)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.Today;
         var threshold = now.Add(ExpiryWindow);
 
         var documents = await _context.TechnicalDocuments

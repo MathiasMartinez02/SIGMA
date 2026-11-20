@@ -9,7 +9,7 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
     public void Configure(EntityTypeBuilder<Client> builder)
     {
         builder.HasKey(c => c.Id);
-        builder.HasIndex(c => c.TaxId).IsUnique();
+        builder.HasIndex(c => c.TaxId).IsUnique().HasFilter("[IsDeleted] = 0");
         builder.Property(c => c.Name).IsRequired().HasMaxLength(200);
         builder.Property(c => c.BusinessName).IsRequired().HasMaxLength(200);
         builder.Property(c => c.TaxId).IsRequired().HasMaxLength(20);

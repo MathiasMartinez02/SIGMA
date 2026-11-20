@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
+using SIGMA.API.WorkOrders.Services;
 
 namespace SIGMA.API.WorkOrders.Commands.RemoveMechanic;
 
@@ -13,6 +14,9 @@ public class RemoveMechanicCommandHandler : IRequestHandler<RemoveMechanicComman
 
     public async Task<Result> Handle(RemoveMechanicCommand request, CancellationToken cancellationToken)
     {
+        var (workOrder, error) = await EditableWorkOrder.FindAsync(_context, request.WorkOrderId, cancellationToken);
+        if (workOrder is null) return Result.Failure(error!);
+
         var mechanic = await _context.AssignedMechanics
             .FirstOrDefaultAsync(am => am.WorkOrderId == request.WorkOrderId && am.UserId == request.UserId, cancellationToken);
 

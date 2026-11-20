@@ -24,4 +24,18 @@ public static class AircraftStatusSync
             statuses.Contains(WorkOrderStatus.EnInspeccion),
             statuses.Contains(WorkOrderStatus.EnProceso));
     }
+
+    // Estado de la aeronave segun sus OT activas, sin una OT en edicion
+    public static async Task ApplyAsync(IApplicationDbContext context, AircraftEntity aircraft, CancellationToken cancellationToken)
+    {
+        var statuses = await context.WorkOrders
+            .Where(w => w.AircraftId == aircraft.Id && !w.IsDeleted
+                        && (w.Status == WorkOrderStatus.EnProceso || w.Status == WorkOrderStatus.EnInspeccion))
+            .Select(w => w.Status)
+            .ToListAsync(cancellationToken);
+
+        aircraft.SyncMaintenanceStatus(
+            statuses.Contains(WorkOrderStatus.EnInspeccion),
+            statuses.Contains(WorkOrderStatus.EnProceso));
+    }
 }

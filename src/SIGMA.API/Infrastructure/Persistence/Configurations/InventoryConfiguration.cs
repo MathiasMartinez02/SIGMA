@@ -9,7 +9,7 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
     public void Configure(EntityTypeBuilder<InventoryItem> builder)
     {
         builder.HasKey(i => i.Id);
-        builder.HasIndex(i => i.PartNumber).IsUnique();
+        builder.HasIndex(i => i.PartNumber).IsUnique().HasFilter("[IsDeleted] = 0");
         builder.Property(i => i.PartNumber).IsRequired().HasMaxLength(100);
         builder.Property(i => i.Description).IsRequired().HasMaxLength(500);
         builder.Property(i => i.Category).HasConversion<string>().HasMaxLength(50);

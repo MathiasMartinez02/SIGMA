@@ -19,7 +19,7 @@ public class GetBudgetsQueryHandler : IRequestHandler<GetBudgetsQuery, Paginated
 
     public async Task<PaginatedResult<BudgetDto>> Handle(GetBudgetsQuery request, CancellationToken cancellationToken)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.Today;
 
         var query = _context.Budgets
             .Include(b => b.Client)

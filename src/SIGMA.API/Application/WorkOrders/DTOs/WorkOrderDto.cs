@@ -36,6 +36,7 @@ public class WorkOrderDetailDto : WorkOrderDto
     public IList<WorkOrderDocumentDto> Documents { get; init; } = [];
     public IList<AssignedMechanicDto> AssignedMechanics { get; init; } = [];
     public IList<WorkOrderInspectionDto> Inspections { get; init; } = [];
+    public IList<WorkOrderStatus> AllowedTransitions { get; init; } = [];
 }
 
 public class WorkOrderInspectionDto

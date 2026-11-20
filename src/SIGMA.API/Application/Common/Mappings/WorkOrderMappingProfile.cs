@@ -18,7 +18,8 @@ public class WorkOrderMappingProfile : Profile
                 s.Tasks.Count(t => t.Status == WorkOrderTaskStatus.Completada)));
 
         CreateMap<WorkOrder, WorkOrderDetailDto>()
-            .IncludeBase<WorkOrder, WorkOrderDto>();
+            .IncludeBase<WorkOrder, WorkOrderDto>()
+            .ForMember(d => d.AllowedTransitions, o => o.MapFrom(s => s.GetAllowedTransitions()));
 
         CreateMap<WorkOrderTask, WorkOrderTaskDto>()
             .ForMember(d => d.AssignedToName, o => o.MapFrom(s =>

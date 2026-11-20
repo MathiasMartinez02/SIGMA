@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Entities;
 using AircraftEntity = SIGMA.API.Entities.Aircraft;
@@ -47,7 +48,27 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 .Property(nameof(SIGMA.API.Common.BaseEntity.Id))
                 .ValueGeneratedNever();
         }
+
+        foreach (var property in modelBuilder.Model.GetEntityTypes()
+                     .SelectMany(t => t.GetProperties())
+                     .Where(p => IsUtcTimestamp(p.ClrType, p.Name)))
+        {
+            property.SetValueConverter(property.ClrType == typeof(DateTime) ? UtcConverter : NullableUtcConverter);
+        }
     }
+
+    private static readonly ValueConverter<DateTime, DateTime> UtcConverter =
+        new(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+    private static readonly ValueConverter<DateTime?, DateTime?> NullableUtcConverter =
+        new(v => v, v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+    private static readonly HashSet<string> UtcTimestampNames = ["StartDate", "CompletedDate", "LastMovementDate"];
+
+    // Instantes guardados en UTC (terminan en At o son marcas de inicio/fin); el resto son fechas de negocio
+    private static bool IsUtcTimestamp(Type type, string name) =>
+        (type == typeof(DateTime) || type == typeof(DateTime?))
+        && (name.EndsWith("At", StringComparison.Ordinal) || UtcTimestampNames.Contains(name));
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

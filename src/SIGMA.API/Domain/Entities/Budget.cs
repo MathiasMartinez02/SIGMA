@@ -42,7 +42,7 @@ public class Budget : AuditableEntity
             AppointmentId = appointmentId,
             Description = description.Trim(),
             Amount = amount,
-            ValidUntil = DateTime.UtcNow.AddDays(ValidityDays),
+            ValidUntil = DateTime.Today.AddDays(ValidityDays),
             Notes = notes?.Trim()
         };
     }
@@ -53,7 +53,7 @@ public class Budget : AuditableEntity
     // salvo que aca no se persiste el cambio porque no hay ninguna mutacion que lo dispare.
     public BudgetStatus GetEffectiveStatus()
     {
-        if (Status == BudgetStatus.Pendiente && ValidUntil < DateTime.UtcNow)
+        if (Status == BudgetStatus.Pendiente && ValidUntil < DateTime.Today)
             return BudgetStatus.Vencido;
         return Status;
     }

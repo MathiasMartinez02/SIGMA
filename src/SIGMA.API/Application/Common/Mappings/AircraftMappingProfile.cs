@@ -13,7 +13,8 @@ public class AircraftMappingProfile : Profile
             .ForMember(d => d.IsCertificateExpiringSoon, o => o.MapFrom(s => s.CertificateExpiry <= DateTime.UtcNow.AddDays(30)));
 
         CreateMap<DomainEntities.Aircraft, AircraftDetailDto>()
-            .IncludeBase<DomainEntities.Aircraft, AircraftDto>();
+            .IncludeBase<DomainEntities.Aircraft, AircraftDto>()
+            .ForMember(d => d.FlightHistory, o => o.MapFrom(s => s.FlightRecords.OrderByDescending(f => f.Date)));
 
         CreateMap<DomainEntities.AircraftDocument, AircraftDocumentDto>();
         CreateMap<DomainEntities.FlightRecord, FlightRecordDto>();

@@ -14,7 +14,7 @@ public class TechnicalDocument : AuditableEntity
     public string? Description { get; private set; }
     public DateTime? IssueDate { get; private set; }
     public DateTime? ExpiryDate { get; private set; }
-    public bool IsExpired => ExpiryDate.HasValue && ExpiryDate.Value < DateTime.UtcNow;
+    public bool IsExpired => ExpiryDate.HasValue && ExpiryDate.Value < DateTime.Today;
 
     private TechnicalDocument() { }
 

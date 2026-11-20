@@ -8,5 +8,6 @@ public record UpdateTaskStatusCommand(
     Guid WorkOrderId,
     Guid TaskId,
     WorkOrderTaskStatus Status,
-    string? Observations
+    string? Observations,
+    decimal? ActualHours = null
 ) : IRequest<Result>;

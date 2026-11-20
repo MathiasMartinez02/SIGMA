@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SIGMA.API.Appointments.Commands.ConvertToWorkOrder;
 using SIGMA.API.Appointments.Commands.Create;
+using SIGMA.API.Appointments.Commands.Update;
 using SIGMA.API.Appointments.Commands.UpdateStatus;
 using SIGMA.API.Appointments.Queries.GetAll;
 using SIGMA.API.Appointments.Queries.GetById;
@@ -55,6 +56,17 @@ public class AppointmentsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, ApiResponse<object>.Ok(result.Data));
     }
 
+    [HttpPut("{id:guid}")]
+    [Authorize(Policy = "CanManageAppointments")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAppointmentRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new UpdateAppointmentCommand(id, request.AircraftId, request.AircraftRegistrationHint, request.RequestedType, request.ScheduledDate, request.Notes),
+            cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse.Ok("Turno actualizado correctamente."));
+    }
+
     [HttpPatch("{id:guid}/status")]
     [Authorize(Policy = "CanManageAppointments")]
     public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateAppointmentStatusRequest request, CancellationToken cancellationToken)
@@ -76,3 +88,4 @@ public class AppointmentsController : ControllerBase
 
 // Body del endpoint de cambio de estado de turno (solo Confirmado o Cancelado)
 public record UpdateAppointmentStatusRequest(AppointmentStatus Status);
+public record UpdateAppointmentRequest(Guid? AircraftId, string? AircraftRegistrationHint, WorkOrderType RequestedType, DateTime ScheduledDate, string? Notes);

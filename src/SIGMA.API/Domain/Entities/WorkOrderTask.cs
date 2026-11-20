@@ -38,14 +38,36 @@ public class WorkOrderTask : AuditableEntity
             RequiresInspection = requiresInspection
         };
 
-    public void UpdateStatus(WorkOrderTaskStatus newStatus, string? observations, Guid? userId = null)
+    private static readonly Dictionary<WorkOrderTaskStatus, WorkOrderTaskStatus[]> ValidTransitions = new()
     {
-        Status = newStatus;
-        Observations = observations;
+        [WorkOrderTaskStatus.Pendiente] = [WorkOrderTaskStatus.EnProceso],
+        [WorkOrderTaskStatus.EnProceso] = [WorkOrderTaskStatus.Completada, WorkOrderTaskStatus.Observada, WorkOrderTaskStatus.Pendiente],
+        [WorkOrderTaskStatus.Observada] = [WorkOrderTaskStatus.EnProceso],
+        [WorkOrderTaskStatus.Completada] = [WorkOrderTaskStatus.EnProceso],
+    };
+
+    // Cambio de estado validado; completar exige horas reales y reabrir limpia el cierre
+    public void UpdateStatus(WorkOrderTaskStatus newStatus, string? observations, decimal? actualHours = null)
+    {
+        if (newStatus != Status && !ValidTransitions[Status].Contains(newStatus))
+            throw new DomainException($"La tarea no puede pasar de {Status} a {newStatus}.");
 
         if (newStatus == WorkOrderTaskStatus.Completada)
-            CompletedAt = DateTime.UtcNow;
+        {
+            if (actualHours is null or <= 0)
+                throw new DomainException("Indicá las horas reales trabajadas para completar la tarea.");
+            ActualHours = actualHours.Value;
+            CompletedAt ??= DateTime.UtcNow;
+        }
+        else if (Status == WorkOrderTaskStatus.Completada)
+        {
+            if (InspectedAt is not null)
+                throw new DomainException("La tarea ya fue inspeccionada y no se puede reabrir.");
+            CompletedAt = null;
+        }
 
+        Status = newStatus;
+        Observations = observations;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -58,7 +80,8 @@ public class WorkOrderTask : AuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void Assign(Guid userId)
+    // Asigna o quita (null) el responsable de la tarea
+    public void Assign(Guid? userId)
     {
         AssignedToId = userId;
         UpdatedAt = DateTime.UtcNow;

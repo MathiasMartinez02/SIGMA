@@ -6,6 +6,7 @@ using SIGMA.API.WorkOrders.Commands.AddDocument;
 using SIGMA.API.WorkOrders.Commands.AddMaterial;
 using SIGMA.API.WorkOrders.Commands.AddMechanic;
 using SIGMA.API.WorkOrders.Commands.AddTask;
+using SIGMA.API.WorkOrders.Commands.AssignTask;
 using SIGMA.API.WorkOrders.Commands.Create;
 using SIGMA.API.WorkOrders.Commands.RemoveMechanic;
 using SIGMA.API.WorkOrders.Commands.Update;
@@ -103,7 +104,17 @@ public class WorkOrdersController : ControllerBase
     [HttpPatch("{id:guid}/tasks/{taskId:guid}/status")]
     public async Task<IActionResult> UpdateTaskStatus(Guid id, Guid taskId, [FromBody] UpdateTaskStatusRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new UpdateTaskStatusCommand(id, taskId, request.Status, request.Observations), cancellationToken);
+        var result = await _mediator.Send(
+            new UpdateTaskStatusCommand(id, taskId, request.Status, request.Observations, request.ActualHours), cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse.Ok());
+    }
+
+    [HttpPatch("{id:guid}/tasks/{taskId:guid}/assignee")]
+    [Authorize(Policy = "CanManageWorkOrders")]
+    public async Task<IActionResult> AssignTask(Guid id, Guid taskId, [FromBody] AssignTaskRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new AssignTaskCommand(id, taskId, request.UserId), cancellationToken);
         if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
         return Ok(ApiResponse.Ok());
     }
@@ -164,7 +175,8 @@ public class WorkOrdersController : ControllerBase
 public record UpdateWorkOrderRequest(string Description, decimal EstimatedHours, DateTime IntakeDate, DateTime EstimatedEndDate, WorkOrderPriority Priority);
 public record UpdateStatusRequest(WorkOrderStatus Status);
 public record AddTaskRequest(string Title, string Description, decimal EstimatedHours, bool RequiresInspection);
-public record UpdateTaskStatusRequest(WorkOrderTaskStatus Status, string? Observations);
+public record UpdateTaskStatusRequest(WorkOrderTaskStatus Status, string? Observations, decimal? ActualHours);
+public record AssignTaskRequest(Guid? UserId);
 public record AddMechanicRequest(Guid UserId);
 public record AddWorkOrderDocumentRequest(string Name, string Type, string FileUrl);
 public record AddMaterialRequest(string PartNumber, string Description, decimal Quantity, string Unit);

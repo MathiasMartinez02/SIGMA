@@ -34,7 +34,7 @@ public class InventoryItem : AuditableEntity
         string manufacturer, string location, decimal minimumStock,
         string unit, decimal unitCost, bool certificationRequired = false,
         DateTime? expiryDate = null, string? altPartNumbers = null,
-        decimal? maximumStock = null)
+        decimal? maximumStock = null, string? certificateNumber = null)
     {
         var item = new InventoryItem
         {
@@ -49,6 +49,7 @@ public class InventoryItem : AuditableEntity
             UnitCost = unitCost,
             CertificationRequired = certificationRequired,
             ExpiryDate = expiryDate,
+            CertificateNumber = string.IsNullOrWhiteSpace(certificateNumber) ? null : certificateNumber.Trim(),
             AltPartNumbers = altPartNumbers ?? "[]"
         };
         item.RecalculateStatus();
@@ -82,7 +83,7 @@ public class InventoryItem : AuditableEntity
     // ANTERIOR: solo evaluaba Vencido, SinStock, BajoStock o Disponible, sin considerar un limite maximo de stock
     public void RecalculateStatus()
     {
-        if (ExpiryDate.HasValue && ExpiryDate.Value.Date < DateTime.UtcNow.Date)
+        if (ExpiryDate.HasValue && ExpiryDate.Value.Date < DateTime.Today)
             Status = InventoryStatus.Vencido;
         else if (MaximumStock.HasValue && CurrentStock > MaximumStock.Value)
             Status = InventoryStatus.SobreStock;

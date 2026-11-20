@@ -10,7 +10,7 @@ public class AircraftConfiguration : IEntityTypeConfiguration<AircraftEntity>
     public void Configure(EntityTypeBuilder<AircraftEntity> builder)
     {
         builder.HasKey(a => a.Id);
-        builder.HasIndex(a => a.Registration).IsUnique();
+        builder.HasIndex(a => a.Registration).IsUnique().HasFilter("[IsDeleted] = 0");
         builder.Property(a => a.Registration).IsRequired().HasMaxLength(10);
         builder.Property(a => a.Model).IsRequired().HasMaxLength(100);
         builder.Property(a => a.Manufacturer).IsRequired().HasMaxLength(100);

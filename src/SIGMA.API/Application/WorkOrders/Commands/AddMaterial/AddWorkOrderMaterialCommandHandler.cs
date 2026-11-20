@@ -5,6 +5,7 @@ using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
 using SIGMA.API.WorkOrders.DTOs;
 using SIGMA.API.Entities;
+using SIGMA.API.WorkOrders.Services;
 
 namespace SIGMA.API.WorkOrders.Commands.AddMaterial;
 
@@ -22,11 +23,10 @@ public class AddWorkOrderMaterialCommandHandler : IRequestHandler<AddWorkOrderMa
 
     public async Task<Result<WorkOrderMaterialDto>> Handle(AddWorkOrderMaterialCommand request, CancellationToken cancellationToken)
     {
-        var workOrderExists = await _context.WorkOrders
-            .AnyAsync(w => w.Id == request.WorkOrderId, cancellationToken);
+        var (workOrder, error) = await EditableWorkOrder.FindAsync(_context, request.WorkOrderId, cancellationToken);
 
-        if (!workOrderExists)
-            return Result<WorkOrderMaterialDto>.Failure("Orden de trabajo no encontrada.");
+        if (workOrder is null)
+            return Result<WorkOrderMaterialDto>.Failure(error!);
 
         var material = WorkOrderMaterial.Create(
             request.WorkOrderId, request.PartNumber, request.Description, request.Quantity, request.Unit);

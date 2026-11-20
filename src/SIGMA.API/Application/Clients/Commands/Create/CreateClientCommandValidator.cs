@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SIGMA.API.Common.Validation;
 
 namespace SIGMA.API.Clients.Commands.Create;
 
@@ -6,32 +7,15 @@ public class CreateClientCommandValidator : AbstractValidator<CreateClientComman
 {
     public CreateClientCommandValidator()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("El nombre del cliente es requerido.")
-            .MaximumLength(200);
-
-        RuleFor(x => x.TaxId)
-            .NotEmpty().WithMessage("El CUIT es requerido.")
-            .Matches(@"^\d{2}-\d{8}-\d{1}$").WithMessage("El CUIT debe tener formato argentino XX-XXXXXXXX-X.");
-
-        RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("El email es requerido.")
-            .EmailAddress().WithMessage("El email no tiene un formato válido.");
-
-        RuleFor(x => x.BusinessName)
-            .NotEmpty().WithMessage("La razón social es requerida.")
-            .MaximumLength(200);
-
-        RuleFor(x => x.Phone)
-            .NotEmpty().WithMessage("El teléfono es requerido.");
-
-        RuleFor(x => x.Address)
-            .NotEmpty().WithMessage("La dirección es requerida.");
-
-        RuleFor(x => x.City)
-            .NotEmpty().WithMessage("La ciudad es requerida.");
-
-        RuleFor(x => x.Province)
-            .NotEmpty().WithMessage("La provincia es requerida.");
+        RuleFor(x => x.Name).RequiredText("El nombre del cliente", 200);
+        RuleFor(x => x.BusinessName).RequiredText("La razón social", 200);
+        RuleFor(x => x.TaxId).Cuit();
+        RuleFor(x => x.Email).RequiredEmail();
+        RuleFor(x => x.Phone).RequiredText("El teléfono", 30);
+        RuleFor(x => x.Address).RequiredText("La dirección", 300);
+        RuleFor(x => x.City).RequiredText("La ciudad", 100);
+        RuleFor(x => x.Province).RequiredText("La provincia", 100);
+        RuleFor(x => x.ContactPerson).OptionalText("El contacto", 150);
+        RuleFor(x => x.ContactPhone).OptionalText("El teléfono de contacto", 30);
     }
 }

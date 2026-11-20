@@ -111,7 +111,7 @@ public class WorkOrder : AuditableEntity
         var open = Inspections.FirstOrDefault(i => i.IsOpen);
         if (open is not null) return (open, false);
 
-        var inspection = Inspection.Create(Id, Type.ToString(), AircraftId, aircraftHours, DateTime.UtcNow);
+        var inspection = Inspection.Create(Id, Type.ToString(), AircraftId, aircraftHours, DateTime.Today);
         Inspections.Add(inspection);
         return (inspection, true);
     }
@@ -134,10 +134,10 @@ public class WorkOrder : AuditableEntity
                 $"No se puede finalizar la OT. Hay {pendingInspectionTasks.Count} tarea(s) con inspección pendiente.");
     }
 
-    // MODIFICADO: agrega el parametro intakeDate para permitir editar la fecha de ingreso de la OT
-    // ANTERIOR: Update(string description, decimal estimatedHours, DateTime estimatedEndDate, WorkOrderPriority priority) sin fecha de ingreso
+    // Edicion de datos generales; no aplica a OT cerradas
     public void Update(string description, decimal estimatedHours, DateTime intakeDate, DateTime estimatedEndDate, WorkOrderPriority priority)
     {
+        EnsureEditable();
         Description = description.Trim();
         EstimatedHours = estimatedHours;
         IntakeDate = intakeDate;
@@ -146,9 +146,22 @@ public class WorkOrder : AuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateActualHours(decimal hours)
+    public bool IsClosed => Status is WorkOrderStatus.Finalizada or WorkOrderStatus.Cancelada;
+
+    // Estados a los que puede pasar la OT desde el actual
+    public IReadOnlyList<WorkOrderStatus> GetAllowedTransitions() => ValidTransitions[Status];
+
+    // Rechaza cambios sobre una OT finalizada o cancelada
+    public void EnsureEditable()
     {
-        ActualHours = hours;
+        if (IsClosed)
+            throw new DomainException($"La OT está {Status}: no admite cambios.");
+    }
+
+    // Horas reales de la OT como suma de las horas reales de sus tareas
+    public void RecalculateActualHours()
+    {
+        ActualHours = Tasks.Sum(t => t.ActualHours);
         UpdatedAt = DateTime.UtcNow;
     }
 }

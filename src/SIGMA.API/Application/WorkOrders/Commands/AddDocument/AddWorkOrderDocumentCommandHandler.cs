@@ -4,6 +4,7 @@ using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
 using SIGMA.API.WorkOrders.DTOs;
 using SIGMA.API.Entities;
+using SIGMA.API.WorkOrders.Services;
 
 namespace SIGMA.API.WorkOrders.Commands.AddDocument;
 
@@ -21,11 +22,10 @@ public class AddWorkOrderDocumentCommandHandler : IRequestHandler<AddWorkOrderDo
 
     public async Task<Result<WorkOrderDocumentDto>> Handle(AddWorkOrderDocumentCommand request, CancellationToken cancellationToken)
     {
-        var workOrderExists = await _context.WorkOrders
-            .AnyAsync(w => w.Id == request.WorkOrderId, cancellationToken);
+        var (workOrder, error) = await EditableWorkOrder.FindAsync(_context, request.WorkOrderId, cancellationToken);
 
-        if (!workOrderExists)
-            return Result<WorkOrderDocumentDto>.Failure("La orden de trabajo no fue encontrada.");
+        if (workOrder is null)
+            return Result<WorkOrderDocumentDto>.Failure(error!);
 
         var uploadedById = _currentUser.UserId!.Value;
 
