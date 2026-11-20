@@ -74,10 +74,18 @@ public class WorkOrder : AuditableEntity
         return workOrder;
     }
 
+    // Cambio de estado validado; el cierre exige tareas e inspeccion aprobadas
     public void TransitionTo(WorkOrderStatus newStatus, Guid userId, string userName, string userRole)
     {
         if (!ValidTransitions[Status].Contains(newStatus))
             throw new InvalidStatusTransitionException(Status.ToString(), newStatus.ToString());
+
+        if (newStatus == WorkOrderStatus.Finalizada)
+        {
+            EnsureAllInspectionsCompleted();
+            if (!Inspections.Any(i => i.Status == InspectionStatus.Aprobada))
+                throw new DomainException("No se puede finalizar la OT sin una inspección aprobada.");
+        }
 
         var oldStatus = Status;
         Status = newStatus;
@@ -87,10 +95,7 @@ public class WorkOrder : AuditableEntity
             StartDate = DateTime.UtcNow;
 
         if (newStatus == WorkOrderStatus.Finalizada)
-        {
-            EnsureAllInspectionsCompleted();
             CompletedDate = DateTime.UtcNow;
-        }
 
         var timelineEntry = WorkOrderTimeline.Create(
             Id, $"Estado: {oldStatus} → {newStatus}",
@@ -98,6 +103,24 @@ public class WorkOrder : AuditableEntity
             userId, userName, userRole);
 
         Timeline.Add(timelineEntry);
+    }
+
+    // Inspeccion abierta de la OT o una nueva si no hay ninguna en curso
+    public (Inspection Inspection, bool IsNew) OpenInspection(decimal aircraftHours)
+    {
+        var open = Inspections.FirstOrDefault(i => i.IsOpen);
+        if (open is not null) return (open, false);
+
+        var inspection = Inspection.Create(Id, Type.ToString(), AircraftId, aircraftHours, DateTime.UtcNow);
+        Inspections.Add(inspection);
+        return (inspection, true);
+    }
+
+    // Marca como inspeccionadas las tareas que lo requieren
+    public void MarkInspectionTasksInspected(Guid inspectorId)
+    {
+        foreach (var task in Tasks.Where(t => t.RequiresInspection && t.InspectedAt is null))
+            task.MarkInspected(inspectorId);
     }
 
     private void EnsureAllInspectionsCompleted()

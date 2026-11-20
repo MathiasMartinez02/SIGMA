@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
+using SIGMA.API.Auth;
 using SIGMA.API.Common.Models;
 
 namespace SIGMA.API.Users.Commands.ChangePassword;
@@ -17,6 +18,7 @@ public class ChangeOwnPasswordCommandHandler : IRequestHandler<ChangeOwnPassword
         _passwordHasher = passwordHasher;
     }
 
+    // Cambio de contrasena propia; cierra las demas sesiones
     public async Task<Result> Handle(ChangeOwnPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await _context.Users
@@ -29,6 +31,7 @@ public class ChangeOwnPasswordCommandHandler : IRequestHandler<ChangeOwnPassword
             return Result.Failure("La contraseña actual es incorrecta.");
 
         user.UpdatePasswordHash(_passwordHasher.Hash(request.NewPassword));
+        await RefreshTokenRevoker.RevokeAllAsync(_context, user.Id, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

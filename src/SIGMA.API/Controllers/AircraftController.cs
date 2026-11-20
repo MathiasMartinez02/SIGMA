@@ -76,6 +76,7 @@ public class AircraftController : ControllerBase
     }
 
     [HttpPost("{id:guid}/flight-records")]
+    [Authorize(Policy = "CanManageAircraft")]
     public async Task<IActionResult> AddFlightRecord(Guid id, [FromBody] AddFlightRecordRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
@@ -86,6 +87,7 @@ public class AircraftController : ControllerBase
     }
 
     [HttpPost("{id:guid}/documents")]
+    [Authorize(Policy = "CanManageAircraft")]
     public async Task<IActionResult> AddDocument(Guid id, [FromBody] AddAircraftDocumentRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
@@ -96,6 +98,7 @@ public class AircraftController : ControllerBase
     }
 
     [HttpPost("{id:guid}/components")]
+    [Authorize(Policy = "CanManageAircraft")]
     public async Task<IActionResult> AddComponent(Guid id, [FromBody] AddAircraftComponentRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(

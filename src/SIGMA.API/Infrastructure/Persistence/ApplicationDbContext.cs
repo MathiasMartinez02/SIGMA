@@ -34,10 +34,19 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     // Fase 6: presupuestos (MVP de Administrativo)
     public DbSet<Budget> Budgets => Set<Budget>();
 
+    // Configuraciones EF y claves generadas por el dominio
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+                     .Where(t => typeof(SIGMA.API.Common.BaseEntity).IsAssignableFrom(t.ClrType)))
+        {
+            modelBuilder.Entity(entityType.ClrType)
+                .Property(nameof(SIGMA.API.Common.BaseEntity.Id))
+                .ValueGeneratedNever();
+        }
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

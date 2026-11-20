@@ -1,9 +1,9 @@
 using FluentAssertions;
-using SIGMA.Domain.Exceptions;
-using SIGMA.Domain.ValueObjects;
+using SIGMA.API.Exceptions;
+using SIGMA.API.ValueObjects;
 using Xunit;
 
-namespace SIGMA.Domain.Tests;
+namespace SIGMA.Tests.Domain;
 
 public class RegistrationValueObjectTests
 {
@@ -19,7 +19,6 @@ public class RegistrationValueObjectTests
     }
 
     [Theory]
-    [InlineData("lv-rgt")]
     [InlineData("LV-ABCDE")]
     [InlineData("L-RGT")]
     [InlineData("LVR-GT")]

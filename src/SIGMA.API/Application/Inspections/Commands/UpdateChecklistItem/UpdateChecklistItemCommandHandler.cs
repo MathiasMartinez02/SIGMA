@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
+using SIGMA.API.Exceptions;
 
 namespace SIGMA.API.Inspections.Commands.UpdateChecklistItem;
 
@@ -16,30 +17,21 @@ public class UpdateChecklistItemCommandHandler : IRequestHandler<UpdateChecklist
         _currentUser = currentUser;
     }
 
+    // Control de un item del checklist de una inspeccion en proceso
     public async Task<Result> Handle(UpdateChecklistItemCommand request, CancellationToken cancellationToken)
     {
         var inspection = await _context.Inspections
-            .Include(i => i.ChecklistSections)
-                .ThenInclude(s => s.Items)
+            .Include(i => i.ChecklistSections).ThenInclude(s => s.Items)
             .FirstOrDefaultAsync(i => i.Id == request.InspectionId && !i.IsDeleted, cancellationToken);
 
         if (inspection is null)
             return Result.Failure("La inspección no fue encontrada.");
 
-        var item = inspection.ChecklistSections
-            .SelectMany(s => s.Items)
-            .FirstOrDefault(it => it.Id == request.ItemId);
-
-        if (item is null)
-            return Result.Failure("El ítem del checklist no fue encontrado en esta inspección.");
-
-        var userId = _currentUser.UserId!.Value;
-
         try
         {
-            item.Check(request.Status, request.Observations, userId);
+            inspection.CheckItem(request.ItemId, request.Status, request.Observations, _currentUser.UserId!.Value);
         }
-        catch (Exception ex)
+        catch (DomainException ex)
         {
             return Result.Failure(ex.Message);
         }

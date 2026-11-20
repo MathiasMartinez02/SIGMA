@@ -11,8 +11,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sigma-db,1433;Database=SigmaDb;User Id=sa;Password=Sigma@2024Strong!;TrustServerCertificate=True;
-      - JwtSettings__SecretKey=SIGMA-JWT-SECRET-KEY-2024-MUST-BE-AT-LEAST-256-BITS-LONG-FOR-HS256-ALGORITHM
+      - ConnectionStrings__DefaultConnection=Server=sigma-db,1433;Database=SigmaDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
       - JwtSettings__Issuer=sigma.aero
       - JwtSettings__Audience=sigma.frontend
       - CorsSettings__AllowedOrigins__0=http://localhost:3000
@@ -36,7 +36,7 @@ services:
       - "1433:1433"
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=Sigma@2024Strong!
+      - SA_PASSWORD=${SA_PASSWORD}
       - MSSQL_PID=Developer
     volumes:
       - sigma-db-data:/var/opt/mssql
@@ -44,7 +44,7 @@ services:
       - sigma-network
     restart: unless-stopped
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Sigma@2024Strong!" -Q "SELECT 1" -No
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD}" -Q "SELECT 1" -No
       interval: 15s
       timeout: 10s
       retries: 10

@@ -34,7 +34,8 @@ public class User : AuditableEntity
         string lastName,
         UserRole role,
         string? licenseNumber = null,
-        string? phone = null)
+        string? phone = null,
+        DateTime? licenseExpiry = null)
     {
         if (string.IsNullOrWhiteSpace(email)) throw new DomainException("El email es requerido.");
         if (string.IsNullOrWhiteSpace(firstName)) throw new DomainException("El nombre es requerido.");
@@ -48,6 +49,7 @@ public class User : AuditableEntity
             LastName = lastName.Trim(),
             Role = role,
             LicenseNumber = licenseNumber,
+            LicenseExpiry = licenseExpiry,
             Phone = phone
         };
     }
@@ -66,21 +68,6 @@ public class User : AuditableEntity
     public void SetActive(bool isActive) => IsActive = isActive;
     public void RecordLogin() => LastLoginAt = DateTime.UtcNow;
     public void UpdatePasswordHash(string hash) => PasswordHash = hash;
-
-    // Genera y guarda un token de reseteo de contrasena de un solo uso, valido por el tiempo indicado
-    public void SetPasswordResetToken(string token, DateTime expiry)
-    {
-        PasswordResetToken = token;
-        PasswordResetTokenExpiry = expiry;
-    }
-
-    // Aplica la nueva contrasena hasheada y consume (limpia) el token de reseteo, para que no pueda reutilizarse
-    public void ResetPassword(string newPasswordHash)
-    {
-        PasswordHash = newPasswordHash;
-        PasswordResetToken = null;
-        PasswordResetTokenExpiry = null;
-    }
 
     public IList<string> GetPermissions() => Role switch
     {

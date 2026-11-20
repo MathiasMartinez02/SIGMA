@@ -12,5 +12,6 @@ public record CreateUserCommand(
     string LastName,
     UserRole Role,
     string? LicenseNumber,
-    string? Phone
+    string? Phone,
+    DateTime? LicenseExpiry = null
 ) : IRequest<Result<UserDto>>;

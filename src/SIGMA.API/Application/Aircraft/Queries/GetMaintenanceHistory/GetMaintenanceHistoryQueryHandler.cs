@@ -27,38 +27,11 @@ public class GetMaintenanceHistoryQueryHandler : IRequestHandler<GetMaintenanceH
         if (!aircraftExists)
             return Result<IList<WorkOrderDto>>.Failure("La aeronave no fue encontrada.");
 
-        var workOrders = await _context.WorkOrders
-            .Include(w => w.Aircraft)
-            .Include(w => w.Client)
-            .Include(w => w.Tasks)
+        IList<WorkOrderDto> dtos = await _context.WorkOrders
             .Where(w => w.AircraftId == request.AircraftId && !w.IsDeleted)
             .OrderByDescending(w => w.CreatedAt)
+            .Select(WorkOrderProjections.ToDto)
             .ToListAsync(cancellationToken);
-
-        var dtos = workOrders.Select(w => new WorkOrderDto
-        {
-            Id = w.Id,
-            Number = w.Number,
-            Type = w.Type,
-            Status = w.Status,
-            Priority = w.Priority,
-            AircraftId = w.AircraftId,
-            AircraftRegistration = w.Aircraft.Registration,
-            AircraftModel = w.Aircraft.Model,
-            ClientId = w.ClientId,
-            ClientName = w.Client.Name,
-            Description = w.Description,
-            EstimatedHours = w.EstimatedHours,
-            ActualHours = w.ActualHours,
-            StartDate = w.StartDate,
-            EstimatedEndDate = w.EstimatedEndDate,
-            CompletedDate = w.CompletedDate,
-            AircraftHoursAtStart = w.AircraftHoursAtStart,
-            CreatedAt = w.CreatedAt,
-            UpdatedAt = w.UpdatedAt,
-            TaskCount = w.Tasks.Count,
-            CompletedTaskCount = w.Tasks.Count(t => t.Status == WorkOrderTaskStatus.Completada)
-        }).ToList();
 
         return Result<IList<WorkOrderDto>>.Success(dtos);
     }

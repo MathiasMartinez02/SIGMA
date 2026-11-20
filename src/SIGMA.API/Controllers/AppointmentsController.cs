@@ -47,7 +47,7 @@ public class AppointmentsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "CanManageWorkOrders")]
+    [Authorize(Policy = "CanManageAppointments")]
     public async Task<IActionResult> Create([FromBody] CreateAppointmentCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
@@ -56,7 +56,7 @@ public class AppointmentsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/status")]
-    [Authorize(Policy = "CanManageWorkOrders")]
+    [Authorize(Policy = "CanManageAppointments")]
     public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateAppointmentStatusRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new UpdateAppointmentStatusCommand(id, request.Status), cancellationToken);

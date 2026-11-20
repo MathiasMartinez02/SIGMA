@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using FluentAssertions;
-using SIGMA.Application.Auth.Commands.Login;
-using SIGMA.Application.Common.Interfaces;
-using SIGMA.Domain.Entities;
-using SIGMA.Domain.Enums;
-using SIGMA.Infrastructure.Persistence;
+using SIGMA.API.Auth.Commands.Login;
+using SIGMA.API.Common.Interfaces;
+using SIGMA.API.Entities;
+using SIGMA.API.Enums;
+using SIGMA.API.Persistence;
 using Xunit;
 
-namespace SIGMA.Application.Tests;
+namespace SIGMA.Tests.Application;
 
 public class LoginCommandHandlerTests
 {

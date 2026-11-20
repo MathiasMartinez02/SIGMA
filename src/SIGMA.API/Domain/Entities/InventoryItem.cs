@@ -28,15 +28,15 @@ public class InventoryItem : AuditableEntity
 
     private InventoryItem() { }
 
-    // MODIFICADO: agrega el parametro opcional maximumStock para configurar el limite superior de stock
-    // ANTERIOR: Create(string partNumber, string description, InventoryCategory category, string manufacturer, string location, decimal minimumStock, string unit, decimal unitCost, bool certificationRequired = false, DateTime? expiryDate = null, string? altPartNumbers = null) sin maximumStock
+    // Alta de item con estado inicial segun stock y vencimiento
     public static InventoryItem Create(
         string partNumber, string description, InventoryCategory category,
         string manufacturer, string location, decimal minimumStock,
         string unit, decimal unitCost, bool certificationRequired = false,
         DateTime? expiryDate = null, string? altPartNumbers = null,
-        decimal? maximumStock = null) =>
-        new()
+        decimal? maximumStock = null)
+    {
+        var item = new InventoryItem
         {
             PartNumber = partNumber.Trim().ToUpperInvariant(),
             Description = description.Trim(),
@@ -51,12 +51,17 @@ public class InventoryItem : AuditableEntity
             ExpiryDate = expiryDate,
             AltPartNumbers = altPartNumbers ?? "[]"
         };
+        item.RecalculateStatus();
+        return item;
+    }
 
+    // Aplica un movimiento validando cantidad y stock resultante
     public void ApplyMovement(decimal quantity, MovementType movementType)
     {
-        var previousStock = CurrentStock;
+        if (movementType == MovementType.Ajuste ? quantity < 0 : quantity <= 0)
+            throw new DomainException("La cantidad del movimiento debe ser mayor a cero.");
 
-        CurrentStock = movementType switch
+        var newStock = movementType switch
         {
             MovementType.Entrada or MovementType.Devolucion => CurrentStock + quantity,
             MovementType.Salida or MovementType.Reserva => CurrentStock - quantity,
@@ -64,9 +69,10 @@ public class InventoryItem : AuditableEntity
             _ => CurrentStock
         };
 
-        if (CurrentStock < 0)
-            throw new DomainException($"Stock insuficiente. Stock actual: {previousStock}, solicitado: {quantity}.");
+        if (newStock < 0)
+            throw new DomainException($"Stock insuficiente. Stock actual: {CurrentStock}, solicitado: {quantity}.");
 
+        CurrentStock = newStock;
         RecalculateStatus();
         LastMovementDate = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;

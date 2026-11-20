@@ -1,6 +1,6 @@
 ﻿namespace SIGMA.API.Enums;
 
-// Tipos de notificacion generados automaticamente por el sistema de vencimientos
+// Tipos de notificacion del sistema
 public enum NotificationType
 {
     InspeccionProxima,
@@ -8,5 +8,6 @@ public enum NotificationType
     DocumentoPorVencer,
     StockBajo,
     StockSobre,
-    StockVencido
+    StockVencido,
+    SolicitudCambioPassword
 }

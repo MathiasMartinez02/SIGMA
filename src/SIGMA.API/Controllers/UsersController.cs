@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SIGMA.API.Common.Models;
 using SIGMA.API.Users.Commands.Create;
+using SIGMA.API.Users.Commands.ResetPassword;
 using SIGMA.API.Users.Commands.Update;
 using SIGMA.API.Users.Commands.UpdateStatus;
 using SIGMA.API.Users.Queries.GetAll;
@@ -58,6 +59,14 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse.Ok());
     }
 
+    [HttpPatch("{id:guid}/password")]
+    public async Task<IActionResult> ResetPassword(Guid id, [FromBody] ResetUserPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ResetUserPasswordCommand(id, request.NewPassword), cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse.Ok("Contraseña actualizada. Las sesiones abiertas del usuario se cerraron."));
+    }
+
     [HttpPatch("{id:guid}/status")]
     public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateUserStatusRequest request, CancellationToken cancellationToken)
     {
@@ -68,3 +77,5 @@ public class UsersController : ControllerBase
 }
 
 public record UpdateUserStatusRequest(bool IsActive);
+
+public record ResetUserPasswordRequest(string NewPassword);

@@ -35,6 +35,18 @@ public class WorkOrderDetailDto : WorkOrderDto
     public IList<WorkOrderMaterialDto> Materials { get; init; } = [];
     public IList<WorkOrderDocumentDto> Documents { get; init; } = [];
     public IList<AssignedMechanicDto> AssignedMechanics { get; init; } = [];
+    public IList<WorkOrderInspectionDto> Inspections { get; init; } = [];
+}
+
+public class WorkOrderInspectionDto
+{
+    public Guid Id { get; init; }
+    public string Type { get; init; } = string.Empty;
+    public InspectionStatus Status { get; init; }
+    public DateTime ScheduledDate { get; init; }
+    public DateTime? CompletedAt { get; init; }
+    public DateTime? ApprovedAt { get; init; }
+    public string? RejectionReason { get; init; }
 }
 
 public class WorkOrderTaskDto

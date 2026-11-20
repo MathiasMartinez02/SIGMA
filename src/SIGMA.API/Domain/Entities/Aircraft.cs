@@ -74,6 +74,36 @@ public class Aircraft : AuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
+    // Estado segun las OT activas, salvo que este fuera de servicio
+    public void SyncMaintenanceStatus(bool anyInInspection, bool anyInProgress)
+    {
+        if (Status == AircraftStatus.FueraDeServicio) return;
+
+        Status = anyInInspection ? AircraftStatus.EnInspeccion
+            : anyInProgress ? AircraftStatus.EnMantenimiento
+            : AircraftStatus.Operativa;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    // Ultima y proxima inspeccion al cerrar una OT de inspeccion periodica
+    public void RegisterCompletedInspection(WorkOrderType type, DateTime completedAt)
+    {
+        var hoursInterval = type switch
+        {
+            WorkOrderType.Inspeccion50h => 50m,
+            WorkOrderType.Inspeccion100h => 100m,
+            WorkOrderType.Inspeccion200h => 200m,
+            _ => (decimal?)null
+        };
+
+        if (hoursInterval is null && type != WorkOrderType.InspeccionAnual) return;
+
+        LastInspectionDate = completedAt;
+        if (hoursInterval is not null) NextInspectionHours = TotalFlightHours + hoursInterval.Value;
+        if (type == WorkOrderType.InspeccionAnual) NextInspectionDue = completedAt.AddYears(1);
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public void UpdateFlightHours(decimal newHours, decimal newLandings)
     {
         if (newHours < TotalFlightHours)

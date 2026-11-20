@@ -5,7 +5,6 @@ using SIGMA.API.Auth.Commands.ForgotPassword;
 using SIGMA.API.Auth.Commands.Login;
 using SIGMA.API.Auth.Commands.Logout;
 using SIGMA.API.Auth.Commands.Refresh;
-using SIGMA.API.Auth.Commands.ResetPassword;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
 using SIGMA.API.Users.Commands.ChangePassword;
@@ -50,7 +49,7 @@ public class AuthController : ControllerBase
         if (result.Failed)
             return Unauthorized(ApiResponse<object>.Fail(result.Errors));
 
-        return Ok(ApiResponse<object>.Ok(new { accessToken = result.Data }));
+        return Ok(ApiResponse<object>.Ok(result.Data!));
     }
 
     [HttpPost("logout")]
@@ -74,26 +73,13 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse.Ok());
     }
 
-    // Paso 1 del flujo de recuperacion de contrasena: genera un token de un solo uso.
-    // MVP sin envio de email real (no hay infraestructura de correo en el proyecto): el token se devuelve
-    // en la respuesta en vez de enviarse por mail, decision de alcance documentada en PLAN_ANALISIS_FUNCIONAL.md.
+    // Solicitud de cambio de contrasena: avisa a los gerentes, misma respuesta exista o no el email
     [HttpPost("forgot-password")]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new ForgotPasswordCommand(request.Email), cancellationToken);
-        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
-        return Ok(ApiResponse<object>.Ok(result.Data!));
-    }
-
-    // Paso 2 del flujo de recuperacion: aplica la nueva contrasena usando el token generado en el paso 1
-    [HttpPost("reset-password")]
-    [AllowAnonymous]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(new ResetPasswordCommand(request.Token, request.NewPassword), cancellationToken);
-        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
-        return Ok(ApiResponse.Ok());
+        await _mediator.Send(new ForgotPasswordCommand(request.Email), cancellationToken);
+        return Ok(ApiResponse.Ok("Si el email está registrado, se avisó al gerente para que te asigne una contraseña nueva."));
     }
 }
 
@@ -101,4 +87,3 @@ public record LoginRequest(string Email, string Password);
 public record RefreshRequest(string RefreshToken);
 public record ChangeOwnPasswordRequest(string CurrentPassword, string NewPassword);
 public record ForgotPasswordRequest(string Email);
-public record ResetPasswordRequest(string Token, string NewPassword);

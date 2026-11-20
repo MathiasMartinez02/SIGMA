@@ -51,7 +51,7 @@ public class TechnicalDocumentsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "CanSignDocuments")]
+    [Authorize(Policy = "CanManageTechnicalDocuments")]
     public async Task<IActionResult> Create([FromBody] CreateTechnicalDocumentCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);

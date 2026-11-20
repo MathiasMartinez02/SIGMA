@@ -11,15 +11,10 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, Result>
 
     public LogoutCommandHandler(IApplicationDbContext context) => _context = context;
 
+    // Cierre de sesion: revoca todos los refresh tokens del usuario
     public async Task<Result> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
-        var activeTokens = await _context.RefreshTokens
-            .Where(rt => rt.UserId == request.UserId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
-            .ToListAsync(cancellationToken);
-
-        foreach (var token in activeTokens)
-            token.Revoke();
-
+        await RefreshTokenRevoker.RevokeAllAsync(_context, request.UserId, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

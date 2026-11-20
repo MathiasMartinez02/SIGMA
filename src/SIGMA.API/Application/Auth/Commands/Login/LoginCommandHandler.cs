@@ -39,7 +39,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
 
         var accessToken = _jwtService.GenerateAccessToken(user);
         var refreshTokenValue = _jwtService.GenerateRefreshToken();
-        var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue, 30);
+        var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue, _jwtService.RefreshTokenExpirationDays);
 
         _context.RefreshTokens.Add(refreshToken);
         user.RecordLogin();

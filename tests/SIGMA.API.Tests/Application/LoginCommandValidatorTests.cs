@@ -1,8 +1,8 @@
 using FluentAssertions;
-using SIGMA.Application.Auth.Commands.Login;
+using SIGMA.API.Auth.Commands.Login;
 using Xunit;
 
-namespace SIGMA.Application.Tests;
+namespace SIGMA.Tests.Application;
 
 public class LoginCommandValidatorTests
 {

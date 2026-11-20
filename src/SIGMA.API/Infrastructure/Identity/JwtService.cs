@@ -52,6 +52,8 @@ public class JwtService : IJwtService
         return Convert.ToBase64String(bytes);
     }
 
+    public int RefreshTokenExpirationDays => _settings.RefreshTokenExpirationDays;
+
     public long GetAccessTokenExpirationUnixTimestamp() =>
         DateTimeOffset.UtcNow.AddHours(_settings.AccessTokenExpirationHours).ToUnixTimeSeconds();
 }

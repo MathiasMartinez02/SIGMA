@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
+using SIGMA.API.Entities;
 
 namespace SIGMA.API.Auth.Commands.Refresh;
 
-public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, Result<string>>
+public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, Result<RefreshResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IJwtService _jwtService;
@@ -16,19 +17,33 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
         _jwtService = jwtService;
     }
 
-    public async Task<Result<string>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    // Rota el refresh token; si llega uno ya revocado se cierran todas las sesiones del usuario
+    public async Task<Result<RefreshResultDto>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var refreshToken = await _context.RefreshTokens
+        var current = await _context.RefreshTokens
             .Include(rt => rt.User)
             .FirstOrDefaultAsync(rt => rt.Token == request.RefreshToken, cancellationToken);
 
-        if (refreshToken is null || !refreshToken.IsActive)
-            return Result<string>.Failure("Refresh token inválido o expirado.");
+        if (current is null || current.IsExpired)
+            return Result<RefreshResultDto>.Failure("Refresh token inválido o expirado.");
 
-        if (!refreshToken.User.IsActive)
-            return Result<string>.Failure("El usuario está desactivado.");
+        if (current.IsRevoked)
+        {
+            await RefreshTokenRevoker.RevokeAllAsync(_context, current.UserId, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            return Result<RefreshResultDto>.Failure("Refresh token inválido o expirado.");
+        }
 
-        var newAccessToken = _jwtService.GenerateAccessToken(refreshToken.User);
-        return Result<string>.Success(newAccessToken);
+        if (!current.User.IsActive || current.User.IsDeleted)
+            return Result<RefreshResultDto>.Failure("El usuario está desactivado.");
+
+        current.Revoke();
+        var replacement = RefreshToken.Create(current.UserId, _jwtService.GenerateRefreshToken(),
+            _jwtService.RefreshTokenExpirationDays);
+        _context.RefreshTokens.Add(replacement);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return Result<RefreshResultDto>.Success(
+            new RefreshResultDto(_jwtService.GenerateAccessToken(current.User), replacement.Token));
     }
 }

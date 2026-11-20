@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
+using SIGMA.API.Auth;
 using SIGMA.API.Common.Models;
 
 namespace SIGMA.API.Users.Commands.UpdateStatus;
@@ -16,6 +17,7 @@ public class UpdateUserStatusCommandHandler : IRequestHandler<UpdateUserStatusCo
         _currentUser = currentUser;
     }
 
+    // Activa o desactiva un usuario; al desactivar cierra sus sesiones
     public async Task<Result> Handle(UpdateUserStatusCommand request, CancellationToken cancellationToken)
     {
         if (!request.IsActive && _currentUser.UserId.HasValue && _currentUser.UserId.Value == request.Id)
@@ -28,6 +30,8 @@ public class UpdateUserStatusCommandHandler : IRequestHandler<UpdateUserStatusCo
             return Result.Failure("El usuario no fue encontrado.");
 
         user.SetActive(request.IsActive);
+        if (!request.IsActive)
+            await RefreshTokenRevoker.RevokeAllAsync(_context, user.Id, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

@@ -34,6 +34,7 @@ public class GetWorkOrderByIdQueryHandler : IRequestHandler<GetWorkOrderByIdQuer
             .Include(w => w.Materials)
             .Include(w => w.Documents)
             .Include(w => w.AssignedMechanics).ThenInclude(am => am.User)
+            .Include(w => w.Inspections.OrderBy(i => i.CreatedAt))
             .AsSplitQuery()
             .FirstOrDefaultAsync(w => w.Id == request.Id && !w.IsDeleted, cancellationToken);
 

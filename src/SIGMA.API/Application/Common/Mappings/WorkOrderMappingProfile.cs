@@ -30,6 +30,7 @@ public class WorkOrderMappingProfile : Profile
         CreateMap<WorkOrderMaterial, WorkOrderMaterialDto>()
             .ForMember(d => d.Status, o => o.MapFrom(s => s.Status.ToString()));
         CreateMap<WorkOrderDocument, WorkOrderDocumentDto>();
+        CreateMap<Inspection, WorkOrderInspectionDto>();
         CreateMap<AssignedMechanic, AssignedMechanicDto>()
             .ForMember(d => d.UserName, o => o.MapFrom(s => s.User.FullName));
     }

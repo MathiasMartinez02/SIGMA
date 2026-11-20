@@ -34,15 +34,21 @@ public static class DependencyInjection
         return services;
     }
 
+    // Persistencia, servicios e identidad; exige connection string y clave JWT configuradas
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)
     {
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException(
+                "Falta ConnectionStrings:DefaultConnection. Configurala con user-secrets o la variable ConnectionStrings__DefaultConnection.");
+
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection"),
+                connectionString,
                 b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
         services.AddScoped<IApplicationDbContext>(provider =>
@@ -58,7 +64,10 @@ public static class DependencyInjection
 
         services.AddHostedService<NotificationGeneratorService>();
 
-        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+        var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>() ?? new JwtSettings();
+        if (jwtSettings.SecretKey.Length < 32)
+            throw new InvalidOperationException(
+                "Falta JwtSettings:SecretKey (minimo 32 caracteres). Configurala con user-secrets o la variable JwtSettings__SecretKey.");
         var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
         services.AddAuthentication(options =>

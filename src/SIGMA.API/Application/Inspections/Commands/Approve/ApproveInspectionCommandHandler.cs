@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Common.Models;
-using SIGMA.API.Enums;
+using SIGMA.API.Exceptions;
 
 namespace SIGMA.API.Inspections.Commands.Approve;
 
@@ -17,11 +17,13 @@ public class ApproveInspectionCommandHandler : IRequestHandler<ApproveInspection
         _currentUser = currentUser;
     }
 
+    // Aprobacion de la inspeccion y firma de las tareas que la requerian
     public async Task<Result> Handle(ApproveInspectionCommand request, CancellationToken cancellationToken)
     {
         var inspection = await _context.Inspections
-            .Include(i => i.WorkOrder)
-                .ThenInclude(w => w.Tasks)
+            .Include(i => i.ChecklistSections).ThenInclude(s => s.Items)
+            .Include(i => i.WorkOrder).ThenInclude(w => w.Tasks)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(i => i.Id == request.InspectionId && !i.IsDeleted, cancellationToken);
 
         if (inspection is null)
@@ -32,8 +34,9 @@ public class ApproveInspectionCommandHandler : IRequestHandler<ApproveInspection
         try
         {
             inspection.Approve(userId, request.Observations);
+            inspection.WorkOrder.MarkInspectionTasksInspected(userId);
         }
-        catch (Exception ex)
+        catch (DomainException ex)
         {
             return Result.Failure(ex.Message);
         }

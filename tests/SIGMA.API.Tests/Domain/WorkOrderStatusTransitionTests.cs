@@ -1,10 +1,10 @@
 using FluentAssertions;
-using SIGMA.Domain.Entities;
-using SIGMA.Domain.Enums;
-using SIGMA.Domain.Exceptions;
+using SIGMA.API.Entities;
+using SIGMA.API.Enums;
+using SIGMA.API.Exceptions;
 using Xunit;
 
-namespace SIGMA.Domain.Tests;
+namespace SIGMA.Tests.Domain;
 
 public class WorkOrderStatusTransitionTests
 {

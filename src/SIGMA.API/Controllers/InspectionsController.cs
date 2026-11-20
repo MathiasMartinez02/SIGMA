@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SIGMA.API.Common.Models;
 using SIGMA.API.Inspections.Commands.Approve;
-using SIGMA.API.Inspections.Commands.Create;
+using SIGMA.API.Inspections.Commands.Complete;
 using SIGMA.API.Inspections.Commands.Reject;
+using SIGMA.API.Inspections.Commands.Start;
 using SIGMA.API.Inspections.Commands.UpdateChecklistItem;
 using SIGMA.API.Inspections.Queries.GetAll;
 using SIGMA.API.Inspections.Queries.GetById;
@@ -48,16 +49,22 @@ public class InspectionsController : ControllerBase
         return Ok(ApiResponse<object>.Ok(result.Data!));
     }
 
-    // Programa una nueva inspección sobre una orden de trabajo existente
-    [HttpPost]
+    [HttpPost("{id:guid}/start")]
     [Authorize(Policy = "CanApproveInspections")]
-    public async Task<IActionResult> Create([FromBody] CreateInspectionRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(
-            new CreateInspectionCommand(request.WorkOrderId, request.ScheduledDate, request.InspectorId),
-            cancellationToken);
+        var result = await _mediator.Send(new StartInspectionCommand(id), cancellationToken);
         if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
-        return Ok(ApiResponse<object>.Ok(result.Data!));
+        return Ok(ApiResponse.Ok("Inspección iniciada."));
+    }
+
+    [HttpPost("{id:guid}/complete")]
+    [Authorize(Policy = "CanApproveInspections")]
+    public async Task<IActionResult> Complete(Guid id, [FromBody] CompleteRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new CompleteInspectionCommand(id, request.Observations), cancellationToken);
+        if (result.Failed) return BadRequest(ApiResponse<object>.Fail(result.Errors));
+        return Ok(ApiResponse.Ok("Inspección completada."));
     }
 
     [HttpPost("{id:guid}/approve")]
@@ -79,6 +86,7 @@ public class InspectionsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/checklist/{itemId:guid}")]
+    [Authorize(Policy = "CanApproveInspections")]
     public async Task<IActionResult> UpdateChecklistItem(
         Guid id, Guid itemId,
         [FromBody] UpdateChecklistItemRequest request,
@@ -90,7 +98,7 @@ public class InspectionsController : ControllerBase
     }
 }
 
-public record CreateInspectionRequest(Guid WorkOrderId, DateTime ScheduledDate, Guid? InspectorId);
+public record CompleteRequest(string? Observations);
 public record ApproveRequest(string? Observations);
 public record RejectRequest(string RejectionReason);
 public record UpdateChecklistItemRequest(ChecklistItemStatus Status, string? Observations);

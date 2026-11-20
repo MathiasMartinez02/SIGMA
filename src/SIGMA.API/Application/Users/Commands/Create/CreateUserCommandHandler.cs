@@ -47,7 +47,8 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Resul
             request.LastName,
             request.Role,
             request.LicenseNumber,
-            request.Phone);
+            request.Phone,
+            request.LicenseExpiry);
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync(cancellationToken);

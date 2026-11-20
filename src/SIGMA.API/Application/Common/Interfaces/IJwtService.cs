@@ -7,4 +7,5 @@ public interface IJwtService
     string GenerateAccessToken(User user);
     string GenerateRefreshToken();
     long GetAccessTokenExpirationUnixTimestamp();
+    int RefreshTokenExpirationDays { get; }
 }
