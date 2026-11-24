@@ -1,9 +1,7 @@
 version: '3.9'
-
 services:
   sigma-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8000:8080"
-      - "8001:8081"

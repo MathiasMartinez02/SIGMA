@@ -8,7 +8,6 @@ using SIGMA.API.WorkOrders.Services;
 
 namespace SIGMA.API.WorkOrders.Commands.AddDocument;
 
-// Handler que faltaba: WorkOrderDocument existia en el Domain pero no tenia Command/Controller que lo expusiera (Fase 4)
 public class AddWorkOrderDocumentCommandHandler : IRequestHandler<AddWorkOrderDocumentCommand, Result<WorkOrderDocumentDto>>
 {
     private readonly IApplicationDbContext _context;

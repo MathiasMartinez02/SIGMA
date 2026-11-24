@@ -10,6 +10,7 @@ using SIGMA.API.BackgroundServices;
 using SIGMA.API.Common.Behaviours;
 using SIGMA.API.Common.Interfaces;
 using SIGMA.API.Identity;
+using SIGMA.API.Middleware;
 using SIGMA.API.Persistence;
 using SIGMA.API.Services;
 using SIGMA.API.Settings;
@@ -87,6 +88,17 @@ public static class DependencyInjection
                 ValidAudience = jwtSettings.Audience,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
+            };
+            options.Events = new JwtBearerEvents
+            {
+                OnChallenge = context =>
+                {
+                    context.HandleResponse();
+                    return ExceptionHandlingMiddleware.WriteErrorAsync(context.HttpContext, System.Net.HttpStatusCode.Unauthorized,
+                        "Unauthorized", "Tu sesión expiró o no es válida. Volvé a iniciar sesión.");
+                },
+                OnForbidden = context => ExceptionHandlingMiddleware.WriteErrorAsync(context.HttpContext, System.Net.HttpStatusCode.Forbidden,
+                    "Forbidden", "No tenés permiso para realizar esta acción.")
             };
         });
 

@@ -14,8 +14,6 @@ public class UpdateInventoryItemCommandHandler : IRequestHandler<UpdateInventory
         _context = context;
     }
 
-    // MODIFICADO: ahora tambien propaga MaximumStock al metodo de dominio Update
-    // ANTERIOR: no enviaba MaximumStock porque la propiedad no existia en el comando
     public async Task<Result> Handle(UpdateInventoryItemCommand request, CancellationToken cancellationToken)
     {
         var item = await _context.InventoryItems

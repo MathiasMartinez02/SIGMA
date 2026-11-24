@@ -79,8 +79,7 @@ public class InventoryItem : AuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    // MODIFICADO: agrega el estado SobreStock cuando hay MaximumStock configurado y se supera, con prioridad menor a Vencido pero mayor al resto
-    // ANTERIOR: solo evaluaba Vencido, SinStock, BajoStock o Disponible, sin considerar un limite maximo de stock
+    // Estado segun vencimiento y niveles de stock
     public void RecalculateStatus()
     {
         if (ExpiryDate.HasValue && ExpiryDate.Value.Date < DateTime.Today)
@@ -95,8 +94,6 @@ public class InventoryItem : AuditableEntity
             Status = InventoryStatus.Disponible;
     }
 
-    // MODIFICADO: agrega el parametro opcional maximumStock para poder editar el limite superior de stock
-    // ANTERIOR: Update(string description, string location, decimal minimumStock, decimal unitCost, string? certificateNumber, DateTime? expiryDate) sin maximumStock
     public void Update(string description, string location, decimal minimumStock,
         decimal unitCost, string? certificateNumber, DateTime? expiryDate,
         decimal? maximumStock = null)

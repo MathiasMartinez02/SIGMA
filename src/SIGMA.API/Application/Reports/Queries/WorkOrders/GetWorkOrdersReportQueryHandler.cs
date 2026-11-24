@@ -14,14 +14,15 @@ public class GetWorkOrdersReportQueryHandler : IRequestHandler<GetWorkOrdersRepo
         _context = context;
     }
 
+    // OT ingresadas en el periodo (fechas de ingreso inclusive)
     public async Task<WorkOrdersReportDto> Handle(GetWorkOrdersReportQuery request, CancellationToken cancellationToken)
     {
         var query = _context.WorkOrders
             .Include(w => w.Aircraft)
             .Include(w => w.Client)
             .Where(w => !w.IsDeleted
-                && w.CreatedAt >= request.DateFrom
-                && w.CreatedAt <= request.DateTo);
+                && w.IntakeDate >= request.DateFrom.Date
+                && w.IntakeDate < request.DateTo.Date.AddDays(1));
 
         if (request.Status.HasValue)
             query = query.Where(w => w.Status == request.Status.Value);

@@ -68,6 +68,7 @@ public class WorkOrderTaskConfiguration : IEntityTypeConfiguration<WorkOrderTask
 {
     public void Configure(EntityTypeBuilder<WorkOrderTask> builder)
     {
+        builder.HasQueryFilter(t => !t.IsDeleted);
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Title).IsRequired().HasMaxLength(300);
         builder.Property(t => t.Description).HasMaxLength(2000);

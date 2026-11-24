@@ -8,13 +8,11 @@ using SIGMA.API.Enums;
 
 namespace SIGMA.API.BackgroundServices;
 
-// Servicio en background que cada 30 minutos escanea vencimientos de aeronaves, documentos y stock
-// y genera notificaciones persistidas para todos los usuarios activos, evitando duplicados no leidos.
-// Simplificacion de MVP: notifica a todos los usuarios activos (User.IsActive), sin segmentar por rol/area.
 public class NotificationGeneratorService : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromMinutes(30);
     private static readonly TimeSpan ExpiryWindow = TimeSpan.FromDays(30);
+    private static readonly TimeSpan RenotifyAfter = TimeSpan.FromDays(7);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<NotificationGeneratorService> _logger;
@@ -64,15 +62,16 @@ public class NotificationGeneratorService : BackgroundService
             return;
         }
 
+        await ExpireInventoryItemsAsync(context, cancellationToken);
+
         var created = 0;
         created += await NotifyAircraftInspectionsAsync(context, activeUserIds, now, threshold, cancellationToken);
         created += await NotifyAircraftCertificatesAsync(context, activeUserIds, now, threshold, cancellationToken);
         created += await NotifyAircraftDocumentsAsync(context, activeUserIds, now, threshold, cancellationToken);
         created += await NotifyTechnicalDocumentsAsync(context, activeUserIds, now, threshold, cancellationToken);
-        created += await NotifyInventoryAsync(context, activeUserIds, cancellationToken);
+        created += await NotifyInventoryAsync(context, activeUserIds, now, cancellationToken);
 
-        if (created > 0)
-            await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Generacion de notificaciones finalizada. Notificaciones creadas: {Created}.", created);
     }
@@ -89,12 +88,12 @@ public class NotificationGeneratorService : BackgroundService
         var count = 0;
         foreach (var aircraft in aircraftDue)
         {
-            var alreadyExists = await ExistsUnreadNotificationAsync(context, NotificationType.InspeccionProxima, aircraft.Id, cancellationToken);
-            if (alreadyExists) continue;
+            var recipients = await PendingRecipientsAsync(context, activeUserIds, NotificationType.InspeccionProxima, aircraft.Id, now, cancellationToken);
+            if (recipients.Count == 0) continue;
 
             var title = "Inspeccion proxima";
             var message = $"La aeronave {aircraft.Registration} tiene una inspeccion programada para el {aircraft.NextInspectionDue:dd/MM/yyyy}.";
-            count += CreateForActiveUsers(context, activeUserIds, NotificationType.InspeccionProxima, title, message, aircraft.Id);
+            count += CreateForUsers(context, recipients, NotificationType.InspeccionProxima, title, message, aircraft.Id);
         }
 
         return count;
@@ -111,12 +110,12 @@ public class NotificationGeneratorService : BackgroundService
         var count = 0;
         foreach (var aircraft in aircraftExpiring)
         {
-            var alreadyExists = await ExistsUnreadNotificationAsync(context, NotificationType.CertificadoPorVencer, aircraft.Id, cancellationToken);
-            if (alreadyExists) continue;
+            var recipients = await PendingRecipientsAsync(context, activeUserIds, NotificationType.CertificadoPorVencer, aircraft.Id, now, cancellationToken);
+            if (recipients.Count == 0) continue;
 
             var title = "Certificado por vencer";
             var message = $"El certificado de aeronavegabilidad de {aircraft.Registration} vence el {aircraft.CertificateExpiry:dd/MM/yyyy}.";
-            count += CreateForActiveUsers(context, activeUserIds, NotificationType.CertificadoPorVencer, title, message, aircraft.Id);
+            count += CreateForUsers(context, recipients, NotificationType.CertificadoPorVencer, title, message, aircraft.Id);
         }
 
         return count;
@@ -135,18 +134,18 @@ public class NotificationGeneratorService : BackgroundService
         var count = 0;
         foreach (var document in documentsExpiring)
         {
-            var alreadyExists = await ExistsUnreadNotificationAsync(context, NotificationType.DocumentoPorVencer, document.Id, cancellationToken);
-            if (alreadyExists) continue;
+            var recipients = await PendingRecipientsAsync(context, activeUserIds, NotificationType.DocumentoPorVencer, document.Id, now, cancellationToken);
+            if (recipients.Count == 0) continue;
 
             var title = "Documento por vencer";
             var message = $"El documento '{document.Name}' de la aeronave {document.Aircraft.Registration} vence el {document.ExpiryDate:dd/MM/yyyy}.";
-            count += CreateForActiveUsers(context, activeUserIds, NotificationType.DocumentoPorVencer, title, message, document.Id);
+            count += CreateForUsers(context, recipients, NotificationType.DocumentoPorVencer, title, message, document.Id);
         }
 
         return count;
     }
 
-    // Genera notificaciones de tipo DocumentoPorVencer para el repositorio general de documentacion tecnica (Fase 4), mismo criterio que AircraftDocument
+    // Avisos de documentos tecnicos por vencer
     private async Task<int> NotifyTechnicalDocumentsAsync(
         IApplicationDbContext context, List<Guid> activeUserIds, DateTime now, DateTime threshold, CancellationToken cancellationToken)
     {
@@ -158,19 +157,19 @@ public class NotificationGeneratorService : BackgroundService
         var count = 0;
         foreach (var document in documentsExpiring)
         {
-            var alreadyExists = await ExistsUnreadNotificationAsync(context, NotificationType.DocumentoPorVencer, document.Id, cancellationToken);
-            if (alreadyExists) continue;
+            var recipients = await PendingRecipientsAsync(context, activeUserIds, NotificationType.DocumentoPorVencer, document.Id, now, cancellationToken);
+            if (recipients.Count == 0) continue;
 
             var title = "Documento por vencer";
             var message = $"El documento tecnico '{document.Title}' ({document.Type}) vence el {document.ExpiryDate:dd/MM/yyyy}.";
-            count += CreateForActiveUsers(context, activeUserIds, NotificationType.DocumentoPorVencer, title, message, document.Id);
+            count += CreateForUsers(context, recipients, NotificationType.DocumentoPorVencer, title, message, document.Id);
         }
 
         return count;
     }
 
     // Genera notificaciones de stock (StockBajo, StockSobre, StockVencido) segun el Status actual del InventoryItem
-    private async Task<int> NotifyInventoryAsync(IApplicationDbContext context, List<Guid> activeUserIds, CancellationToken cancellationToken)
+    private async Task<int> NotifyInventoryAsync(IApplicationDbContext context, List<Guid> activeUserIds, DateTime now, CancellationToken cancellationToken)
     {
         var items = await context.InventoryItems
             .Where(i => !i.IsDeleted && (
@@ -191,8 +190,8 @@ public class NotificationGeneratorService : BackgroundService
                 _ => NotificationType.StockBajo
             };
 
-            var alreadyExists = await ExistsUnreadNotificationAsync(context, type, item.Id, cancellationToken);
-            if (alreadyExists) continue;
+            var recipients = await PendingRecipientsAsync(context, activeUserIds, type, item.Id, now, cancellationToken);
+            if (recipients.Count == 0) continue;
 
             var (title, message) = type switch
             {
@@ -204,28 +203,46 @@ public class NotificationGeneratorService : BackgroundService
                     $"El item {item.PartNumber} tiene stock bajo o sin stock (actual: {item.CurrentStock}, minimo: {item.MinimumStock}).")
             };
 
-            count += CreateForActiveUsers(context, activeUserIds, type, title, message, item.Id);
+            count += CreateForUsers(context, recipients, type, title, message, item.Id);
         }
 
         return count;
     }
 
-    // Verifica si ya existe una notificacion no leida con el mismo tipo y entidad relacionada, para evitar duplicados
-    private static async Task<bool> ExistsUnreadNotificationAsync(
-        IApplicationDbContext context, NotificationType type, Guid relatedEntityId, CancellationToken cancellationToken) =>
-        await context.Notifications.AnyAsync(
-            n => !n.IsRead && n.Type == type && n.RelatedEntityId == relatedEntityId, cancellationToken);
-
-    // Crea una notificacion identica para cada usuario activo y la agrega al contexto sin guardar todavia
-    private static int CreateForActiveUsers(
-        IApplicationDbContext context, List<Guid> activeUserIds, NotificationType type, string title, string message, Guid relatedEntityId)
+    // Marca como vencidos los items cuya fecha de vencimiento ya paso
+    private static async Task ExpireInventoryItemsAsync(IApplicationDbContext context, CancellationToken cancellationToken)
     {
-        foreach (var userId in activeUserIds)
-        {
-            var notification = Notification.Create(userId, type, title, message, relatedEntityId);
-            context.Notifications.Add(notification);
-        }
+        var today = DateTime.Today;
+        var expired = await context.InventoryItems
+            .Where(i => !i.IsDeleted && i.Status != InventoryStatus.Vencido
+                && i.ExpiryDate.HasValue && i.ExpiryDate.Value < today)
+            .ToListAsync(cancellationToken);
 
-        return activeUserIds.Count;
+        foreach (var item in expired)
+            item.RecalculateStatus();
+    }
+
+    // Usuarios activos sin aviso pendiente ni reciente para esa entidad
+    private static async Task<List<Guid>> PendingRecipientsAsync(
+        IApplicationDbContext context, List<Guid> activeUserIds, NotificationType type, Guid relatedEntityId,
+        DateTime now, CancellationToken cancellationToken)
+    {
+        var since = now - RenotifyAfter;
+        var alreadyNotified = await context.Notifications
+            .Where(n => n.Type == type && n.RelatedEntityId == relatedEntityId && (!n.IsRead || n.CreatedAt >= since))
+            .Select(n => n.UserId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        return activeUserIds.Except(alreadyNotified).ToList();
+    }
+
+    private static int CreateForUsers(
+        IApplicationDbContext context, List<Guid> userIds, NotificationType type, string title, string message, Guid relatedEntityId)
+    {
+        foreach (var userId in userIds)
+            context.Notifications.Add(Notification.Create(userId, type, title, message, relatedEntityId));
+
+        return userIds.Count;
     }
 }

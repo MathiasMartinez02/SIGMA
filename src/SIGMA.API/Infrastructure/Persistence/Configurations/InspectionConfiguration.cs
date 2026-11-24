@@ -8,6 +8,7 @@ public class InspectionConfiguration : IEntityTypeConfiguration<Inspection>
 {
     public void Configure(EntityTypeBuilder<Inspection> builder)
     {
+        builder.HasQueryFilter(i => !i.IsDeleted);
         builder.HasKey(i => i.Id);
         builder.Property(i => i.Type).HasMaxLength(100);
         builder.Property(i => i.Status).HasConversion<string>().HasMaxLength(30);

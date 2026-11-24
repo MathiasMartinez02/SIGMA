@@ -10,7 +10,6 @@ using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 
-// Fase 4: repositorio general de documentacion tecnica (manuales, boletines, directivas AD, certificados vigentes de toda la flota/el taller)
 [ApiController]
 [Route("api/v1/technical-documents")]
 [Authorize]

@@ -20,11 +20,6 @@ public class GetWorkOrderByIdQueryHandler : IRequestHandler<GetWorkOrderByIdQuer
 
     public async Task<Result<WorkOrderDetailDto>> Handle(GetWorkOrderByIdQuery request, CancellationToken cancellationToken)
     {
-        // MODIFICADO: se agrega AsSplitQuery(). Con 4 colecciones hermanas (Tasks, Timeline, Materials, Documents,
-        // AssignedMechanics) incluidas en una sola consulta, EF Core arma un JOIN cartesiano que puede devolver
-        // filas duplicadas o mal agrupadas (mismo problema detectado y corregido en UpdateWorkOrderStatusCommandHandler).
-        // AsSplitQuery separa cada colección en su propia consulta, evitando resultados incorrectos en el detalle de la OT.
-        // ANTERIOR: sin AsSplitQuery()
         var workOrder = await _context.WorkOrders
             .Include(w => w.Aircraft)
             .Include(w => w.Client)

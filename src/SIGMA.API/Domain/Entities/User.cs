@@ -18,7 +18,6 @@ public class User : AuditableEntity
     public string? AvatarUrl { get; private set; }
     public bool IsActive { get; private set; } = true;
     public DateTime? LastLoginAt { get; private set; }
-    // Fase 7: token de un solo uso para el flujo de "olvide mi contrasena" (MVP sin envio de email real, ver ForgotPasswordCommandHandler)
     public string? PasswordResetToken { get; private set; }
     public DateTime? PasswordResetTokenExpiry { get; private set; }
 

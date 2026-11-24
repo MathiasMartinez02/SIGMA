@@ -35,7 +35,6 @@ public class InventoryMovementDto
     public Guid PerformedById { get; init; }
     public string PerformedByName { get; init; } = string.Empty;
     public DateTime PerformedAt { get; init; }
-    // Se agregan los datos de aprobacion (antes faltaban en el DTO, el frontend nunca podia saber si un movimiento ya estaba aprobado)
     public Guid? ApprovedById { get; init; }
     public string? ApprovedByName { get; init; }
 }

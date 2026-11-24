@@ -25,9 +25,6 @@ public class CreateAppointmentCommandHandler : IRequestHandler<CreateAppointment
         if (!clientExists)
             return Result<AppointmentDto>.Failure("El cliente no fue encontrado.");
 
-        // MODIFICADO: se agrega la validacion de que la aeronave pertenezca al cliente del turno (antes solo se
-        // verificaba que la aeronave existiera, permitiendo crear un turno con un cliente y una aeronave de otro dueño)
-        // ANTERIOR: solo validaba a.Id == request.AircraftId.Value && !a.IsDeleted, sin comparar el ClientId
         if (request.AircraftId.HasValue)
         {
             var aircraft = await _context.Aircraft

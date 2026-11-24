@@ -5,6 +5,7 @@ using SIGMA.API.Common.Models;
 using SIGMA.API.Inventory.DTOs;
 using SIGMA.API.Entities;
 using SIGMA.API.Enums;
+using SIGMA.API.Exceptions;
 
 namespace SIGMA.API.Inventory.Commands.AddMovement;
 
@@ -40,7 +41,7 @@ public class AddInventoryMovementCommandHandler : IRequestHandler<AddInventoryMo
         {
             item.ApplyMovement(request.Quantity, request.Type);
         }
-        catch (Exception ex)
+        catch (DomainException ex)
         {
             return Result<InventoryMovementDto>.Failure(ex.Message);
         }

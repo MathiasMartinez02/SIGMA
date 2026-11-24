@@ -4,7 +4,6 @@ using SIGMA.API.WorkOrders.DTOs;
 
 namespace SIGMA.API.WorkOrders.Commands.AddMaterial;
 
-// Comando para registrar un material/repuesto solicitado por una OT (Fase 8: WorkOrderMaterial no tenia capa de aplicacion)
 public record AddWorkOrderMaterialCommand(
     Guid WorkOrderId,
     string PartNumber,

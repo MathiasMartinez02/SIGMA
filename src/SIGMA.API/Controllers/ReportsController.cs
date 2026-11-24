@@ -29,8 +29,8 @@ public class ReportsController : ControllerBase
         [FromQuery] Guid? clientId = null,
         CancellationToken cancellationToken = default)
     {
-        var from = dateFrom ?? DateTime.UtcNow.AddMonths(-3);
-        var to = dateTo ?? DateTime.UtcNow;
+        var from = dateFrom ?? DateTime.Today.AddMonths(-3);
+        var to = dateTo ?? DateTime.Today;
         var result = await _mediator.Send(new GetWorkOrdersReportQuery(from, to, status, type, clientId), cancellationToken);
         return Ok(ApiResponse<object>.Ok(result));
     }

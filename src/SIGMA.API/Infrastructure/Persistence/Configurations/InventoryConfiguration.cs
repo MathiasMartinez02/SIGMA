@@ -19,7 +19,7 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(i => i.Status).HasConversion<string>().HasMaxLength(30);
         builder.Property(i => i.AltPartNumbers).HasColumnType("nvarchar(max)");
         builder.Property(i => i.CertificateNumber).HasMaxLength(100);
-        builder.Property(i => i.CurrentStock).HasPrecision(12, 3);
+        builder.Property(i => i.CurrentStock).HasPrecision(12, 3).IsConcurrencyToken();
         builder.Property(i => i.MinimumStock).HasPrecision(12, 3);
         // Columna nueva: stock maximo opcional, mismo formato numerico que MinimumStock
         builder.Property(i => i.MaximumStock).HasPrecision(12, 3);

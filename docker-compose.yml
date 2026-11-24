@@ -15,7 +15,7 @@ services:
       - JwtSettings__SecretKey=${JWT_SECRET_KEY}
       - JwtSettings__Issuer=sigma.aero
       - JwtSettings__Audience=sigma.frontend
-      - CorsSettings__AllowedOrigins__0=http://localhost:3000
+      - CorsSettings__AllowedOrigins__0=${FRONTEND_ORIGIN:-http://localhost:3000}
     depends_on:
       sigma-db:
         condition: service_healthy

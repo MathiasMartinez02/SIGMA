@@ -79,6 +79,7 @@ public class AircraftDocumentConfiguration : IEntityTypeConfiguration<AircraftDo
 {
     public void Configure(EntityTypeBuilder<AircraftDocument> builder)
     {
+        builder.HasQueryFilter(d => !d.IsDeleted);
         builder.HasKey(d => d.Id);
         builder.Property(d => d.Name).IsRequired().HasMaxLength(200);
         builder.Property(d => d.Type).HasMaxLength(100);

@@ -8,6 +8,8 @@ namespace SIGMA.API.Dashboard.Queries.GetDashboard;
 
 public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, DashboardDto>
 {
+    private static readonly System.Globalization.CultureInfo SpanishCulture = new("es-AR");
+
     private readonly IApplicationDbContext _context;
 
     public GetDashboardQueryHandler(IApplicationDbContext context)
@@ -104,7 +106,7 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
 
             chartData.Add(new WorkOrderChartDto
             {
-                Month = monthStart.ToString("MMM yyyy"),
+                Month = monthStart.ToString("MMM yyyy", SpanishCulture),
                 Completadas = completedCount,
                 EnProceso = inProgressCount,
                 Pendientes = pendingCount

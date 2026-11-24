@@ -35,6 +35,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSigmaSwagger();
 builder.Services.AddSigmaAuthorization();
+builder.Services.AddHealthChecks();
 
 var corsOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:3000"];
@@ -69,7 +70,9 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "FATAL: Database initialization failed: {Message}", ex.Message);
+        logger.LogCritical(ex, "Database initialization failed: {Message}", ex.Message);
+        Log.CloseAndFlush();
+        return 1;
     }
 }
 
@@ -87,22 +90,22 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-if (!app.Environment.IsDevelopment())
-    app.UseHttpsRedirection();
-
 app.UseCors("SigmaFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health").AllowAnonymous();
 
 try
 {
-    Log.Information("Starting SIGMA API on port 8000...");
+    Log.Information("Starting SIGMA API ({Environment})", app.Environment.EnvironmentName);
     app.Run();
+    return 0;
 }
 catch (Exception ex)
 {
     Log.Fatal(ex, "SIGMA API terminated unexpectedly.");
+    return 1;
 }
 finally
 {

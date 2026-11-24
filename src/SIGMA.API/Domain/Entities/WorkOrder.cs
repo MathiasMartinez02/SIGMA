@@ -42,8 +42,6 @@ public class WorkOrder : AuditableEntity
 
     private WorkOrder() { }
 
-    // MODIFICADO: agrega el parametro intakeDate (fecha de ingreso de la aeronave al taller, dato de negocio distinto de CreatedAt)
-    // ANTERIOR: Create(string number, WorkOrderType type, WorkOrderPriority priority, Guid aircraftId, Guid clientId, string description, decimal estimatedHours, DateTime estimatedEndDate, decimal aircraftHoursAtStart, Guid createdById) sin fecha de ingreso
     public static WorkOrder Create(
         string number, WorkOrderType type, WorkOrderPriority priority,
         Guid aircraftId, Guid clientId, string description,

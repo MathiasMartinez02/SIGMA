@@ -10,10 +10,6 @@ using SIGMA.API.Enums;
 
 namespace SIGMA.API.Controllers;
 
-// Endpoints de gestion de presupuestos (Fase 6, MVP de Administrativo): alta, consulta y aceptacion/rechazo.
-// Reusa la policy "CanManageClients" para las mutaciones -- un presupuesto es, en esencia, un documento
-// comercial atado al cliente, y esos 3 roles (Gerente/OficinaTecnica/Administracion) ya son quienes gestionan
-// clientes hoy; no se creo una policy nueva para no invadir el trabajo en paralelo de la Fase 7 (roles/permisos).
 [ApiController]
 [Route("api/v1/budgets")]
 [Authorize]

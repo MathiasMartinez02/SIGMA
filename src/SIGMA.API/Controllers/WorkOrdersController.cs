@@ -119,7 +119,6 @@ public class WorkOrdersController : ControllerBase
         return Ok(ApiResponse.Ok());
     }
 
-    // Endpoints que faltaban (Fase 8): WorkOrderMaterial existia en el Domain pero no tenia capa de aplicacion/controller
     [HttpPost("{id:guid}/materials")]
     [Authorize(Policy = "CanManageWorkOrders")]
     public async Task<IActionResult> AddMaterial(Guid id, [FromBody] AddMaterialRequest request, CancellationToken cancellationToken)
@@ -141,7 +140,6 @@ public class WorkOrdersController : ControllerBase
         return Ok(ApiResponse.Ok());
     }
 
-    // Endpoint que faltaba (Fase 4): WorkOrderDocument existia en el Domain pero no tenia Command/Controller
     [HttpPost("{id:guid}/documents")]
     [Authorize(Policy = "CanManageWorkOrders")]
     public async Task<IActionResult> AddDocument(Guid id, [FromBody] AddWorkOrderDocumentRequest request, CancellationToken cancellationToken)
@@ -170,8 +168,6 @@ public class WorkOrdersController : ControllerBase
     }
 }
 
-// MODIFICADO: agrega IntakeDate para permitir editar la fecha de ingreso de la OT desde el endpoint
-// ANTERIOR: UpdateWorkOrderRequest(string Description, decimal EstimatedHours, DateTime EstimatedEndDate, WorkOrderPriority Priority) sin fecha de ingreso
 public record UpdateWorkOrderRequest(string Description, decimal EstimatedHours, DateTime IntakeDate, DateTime EstimatedEndDate, WorkOrderPriority Priority);
 public record UpdateStatusRequest(WorkOrderStatus Status);
 public record AddTaskRequest(string Title, string Description, decimal EstimatedHours, bool RequiresInspection);
